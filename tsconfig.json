@@ -30,5 +30,11 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    ".0g-skills",
+    "0g-agent-nft",
+    "cache_forge",
+    "out"
+  ]
 }

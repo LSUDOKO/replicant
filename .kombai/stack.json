@@ -1,0 +1,33 @@
+// Kombai Tech Stack Configuration
+// Each value must be a string or an array of strings.
+// Example: "Framework": "Vite" or "Project Type": ["React", "Vue"]
+{
+  "Icon Set": [
+    "Lucide",
+    "Phosphor Icons",
+    "Web3 Icons"
+  ],
+  "Charting Library": [
+    "Visx",
+    "ECharts",
+    "Nivo",
+    "Recharts"
+  ],
+  "Animation Library": [
+    "Anime.js",
+    "GSAP",
+    "Framer Motion"
+  ],
+  "Router": "App Router",
+  "TS/JS": "TS",
+  "Tailwind Version": "v4",
+  "Component Library": "shadcn",
+  "Framework": "NextJS 16",
+  "context_graphs": [
+    {
+      "type": "local",
+      "path": ".",
+      "name": "replicant"
+    }
+  ]
+}

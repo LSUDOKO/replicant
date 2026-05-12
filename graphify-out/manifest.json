@@ -1,0 +1,454 @@
+{
+  "/home/arpit/Desktop/hackathon_projects/replicant/next-env.d.ts": {
+    "mtime": 1778581601.3811853,
+    "hash": "2a74d3909800ca5467fa83b0ab4a4890"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/global.d.ts": {
+    "mtime": 1778577765.4666405,
+    "hash": "d898684187f0875d14070220b578d257"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/postcss.config.mjs": {
+    "mtime": 1778570060.985112,
+    "hash": "239f3ebf717465dc636818a1a619398d"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/next.config.ts": {
+    "mtime": 1778577763.2359114,
+    "hash": "783f10e3a893f50121a10cf3e4fc3688"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/eslint.config.mjs": {
+    "mtime": 1778587314.084011,
+    "hash": "bf656c3efcedfe1ddc2ec0e22c8faadb"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/app/layout.tsx": {
+    "mtime": 1778581463.3113873,
+    "hash": "49fe00cecd954eacba97f0d628f9db9f"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/app/page.tsx": {
+    "mtime": 1778577882.7011514,
+    "hash": "d84514f973667ccab98da2b267050398"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/app/providers.tsx": {
+    "mtime": 1778581363.4175088,
+    "hash": "f99023a4993bce1ad1f47688221a9bab"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/app/dashboard/layout.tsx": {
+    "mtime": 1778581532.824549,
+    "hash": "92fa08d7dbb86b213a385752ea993961"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/app/dashboard/page.tsx": {
+    "mtime": 1778581581.2499075,
+    "hash": "a132ce120230729a85410daa853c6dfb"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/app/dashboard/marketplace/page.tsx": {
+    "mtime": 1778578089.6368454,
+    "hash": "a9d8d1711cf8db8a654c5d53a39e95d4"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/app/dashboard/genesis/page.tsx": {
+    "mtime": 1778584271.1363397,
+    "hash": "f72bc081433ff9b3352096d54242cc6e"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/app/dashboard/safety/page.tsx": {
+    "mtime": 1778581532.4204423,
+    "hash": "328dc88bb3c7f5135cda3fa567d58098"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/app/dashboard/tree/page.tsx": {
+    "mtime": 1778578039.097368,
+    "hash": "ae053ad19d77b556550d418cf788cba4"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/app/dashboard/vitals/page.tsx": {
+    "mtime": 1778581464.948877,
+    "hash": "d150c8cd801b02c5af001213cdb87fe9"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/app/dashboard/evolution/page.tsx": {
+    "mtime": 1778577993.6814864,
+    "hash": "468f9c053387c5cf10daf25116d212ad"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/app/api/storage/upload-genome/route.ts": {
+    "mtime": 1778584270.0680974,
+    "hash": "c01285a2c2c8ae8fee1c1f5542d0231f"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/0g-agent-nft/hardhat.config.ts": {
+    "mtime": 1778586123.908913,
+    "hash": "689c1ca7f534539b183c6f9699fba3cf"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/0g-agent-nft/src/tasks/codesize.ts": {
+    "mtime": 1778586123.9108222,
+    "hash": "a991fc788cfae6acaaf9e3d42a5ad9ef"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/0g-agent-nft/scripts/upgrade.ts": {
+    "mtime": 1778586123.9099445,
+    "hash": "9cf0952dd8b56630f4aad38e6bd3869d"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/0g-agent-nft/scripts/verify_contract.ts": {
+    "mtime": 1778586123.9107175,
+    "hash": "6f607405c629d73533e40b129a485c3c"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/0g-agent-nft/scripts/clean_stuck_tx.ts": {
+    "mtime": 1778586123.9097378,
+    "hash": "ccf1fc11d2bf5ab13ac82a39dbdb60c6"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/0g-agent-nft/scripts/deploy/deploy_tee.ts": {
+    "mtime": 1778586123.9099445,
+    "hash": "40eb61f4e6d0aec0972ed7af705d7def"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/0g-agent-nft/scripts/deploy/deploy_agent_market.ts": {
+    "mtime": 1778586123.9098904,
+    "hash": "af66aa39a8c3fe0991beeec87d30485d"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/0g-agent-nft/scripts/deploy/deploy_verifier.ts": {
+    "mtime": 1778586123.9099445,
+    "hash": "9e5f39fcbbf9f1772bfbdc3b9c2457b4"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/0g-agent-nft/scripts/deploy/deploy_agent_nft.ts": {
+    "mtime": 1778586123.9099445,
+    "hash": "745c57057d8289059759bee2a7b5be11"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/0g-agent-nft/scripts/utils/utils.ts": {
+    "mtime": 1778586123.9099445,
+    "hash": "fdbce3985e9bab77e524f1e1f4738ee6"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/0g-agent-nft/test/AgentMarket.feeDistribution.test.ts": {
+    "mtime": 1778586123.9108222,
+    "hash": "f8ef49747c9c5e5065b3f55aaf958826"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/0g-agent-nft/test/AgentNFT.creator.test.ts": {
+    "mtime": 1778586123.9109507,
+    "hash": "5a2cab90f63fabfd5b919f6c76fb5b94"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/marketplace/AgentCard.tsx": {
+    "mtime": 1778578055.4329236,
+    "hash": "356fdfbd4608b53ba81c6b2eac91e372"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/marketplace/MarketplaceGrid.tsx": {
+    "mtime": 1778578153.5190127,
+    "hash": "92f31bf04427e6c8320c9daf6558ef51"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/marketplace/AgentDetailModal.tsx": {
+    "mtime": 1778578076.1934862,
+    "hash": "d47f6ccd28a85763d211bf6d604aac47"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/genesis/GenesisMintForm.tsx": {
+    "mtime": 1778584270.5302024,
+    "hash": "2e87a20186f817ea5b1ab973956599fd"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/dashboard/AlignmentGauge.tsx": {
+    "mtime": 1778579664.4212132,
+    "hash": "354f760737a512b16b7641eea315c4ce"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/dashboard/AgentVitalsChart.tsx": {
+    "mtime": 1778579934.3311265,
+    "hash": "1e8aef9bb213fc02c47e1dbcfc0afefe"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/dashboard/ActiveAgentPanel.tsx": {
+    "mtime": 1778581581.049602,
+    "hash": "08ea13b70ddff6df393c9074aebd00b4"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/dashboard/StatsCards.tsx": {
+    "mtime": 1778579737.2647917,
+    "hash": "9532a75599f3b7f515bbc2ae1e1d6e33"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/dashboard/ActivityFeed.tsx": {
+    "mtime": 1778581464.1126275,
+    "hash": "3f9be10c9f9a26572d2e3ebf1ec2c661"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/dashboard/DashboardSidebar.tsx": {
+    "mtime": 1778584271.4984214,
+    "hash": "6771f5717c821ee7d4b5d6fb1c40b5bb"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/dashboard/ChainStatus.tsx": {
+    "mtime": 1778581532.5884867,
+    "hash": "f2df8434673055c35c5e0e48f292ed9b"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/landing/ProblemSection.tsx": {
+    "mtime": 1778577837.1551974,
+    "hash": "6e28f5c0b29028644edfb357339a5d74"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/landing/SpeciesGrid.tsx": {
+    "mtime": 1778577861.0791805,
+    "hash": "1bf48c214ef8c9ce341f32a7704a277d"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/landing/Footer.tsx": {
+    "mtime": 1778577874.8139758,
+    "hash": "1f01278b8b242cdf7031ad404379a94a"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/landing/Hero.tsx": {
+    "mtime": 1778579663.5111334,
+    "hash": "b61f6c15781a5811e15f4179ee23cc0a"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/landing/HowItWorks.tsx": {
+    "mtime": 1778577851.2959561,
+    "hash": "f2a7116c2b69969d05d7a326c9fa6839"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/landing/Navbar.tsx": {
+    "mtime": 1778579737.1147816,
+    "hash": "18e960276d6c40bda122a24dafb20322"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/landing/IntegrationMap.tsx": {
+    "mtime": 1778577869.947027,
+    "hash": "6829a32dd9abc25ce2688c8e7bd81d69"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/tree/NodeDetailPanel.tsx": {
+    "mtime": 1778578023.361447,
+    "hash": "418dac580a53883b69bdb8eea32059f2"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/tree/FamilyTree.tsx": {
+    "mtime": 1778578035.5164506,
+    "hash": "25e9d2e405098aa2052299097f9b6714"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/tree/AgentNode.tsx": {
+    "mtime": 1778578011.8343387,
+    "hash": "096cba56e6d976477f2f55e0e1550c9f"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/ui/tabs.tsx": {
+    "mtime": 1778577613.276606,
+    "hash": "429035bc858475cd3bcedbb08a5ba8da"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/ui/scroll-area.tsx": {
+    "mtime": 1778577613.9885924,
+    "hash": "ac8fc719d0fd13c77c933474827337da"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/ui/dropdown-menu.tsx": {
+    "mtime": 1778577614.6205802,
+    "hash": "e6107cbb2088437e76a858f75b5a0280"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/ui/sheet.tsx": {
+    "mtime": 1778577615.2765675,
+    "hash": "43ad8bec991f7a28d2aa22d4f374e6b7"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/ui/button.tsx": {
+    "mtime": 1778577415.8093998,
+    "hash": "705bf3552a39e0c722665ccbecb30654"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/ui/select.tsx": {
+    "mtime": 1778577613.545601,
+    "hash": "ab95f478cb74d1906b07425c15b124cc"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/ui/sidebar.tsx": {
+    "mtime": 1778577615.609561,
+    "hash": "96944ebc5f66755ed062aeaa1a875a1e"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/ui/table.tsx": {
+    "mtime": 1778577613.7795963,
+    "hash": "44f87727e60080863edb00fdd2fcd8da"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/ui/action-button.tsx": {
+    "mtime": 1778579539.6964052,
+    "hash": "3fc591a30a1e9e84d0e8574f07de0012"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/ui/input.tsx": {
+    "mtime": 1778577613.6495988,
+    "hash": "0607b02d99a2e92f9509223f36ccc6ec"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/ui/skeleton.tsx": {
+    "mtime": 1778577614.885575,
+    "hash": "0e6e825c43d858d98c9903f4da975382"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/ui/progress.tsx": {
+    "mtime": 1778577614.2975864,
+    "hash": "aa71e8ceb68b33af5ed5799f42cd873e"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/ui/tooltip.tsx": {
+    "mtime": 1778577614.4025843,
+    "hash": "6566a444ce6c0a87d6611903430534fa"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/ui/dialog.tsx": {
+    "mtime": 1778577615.1215703,
+    "hash": "d9618a63d34473ec512321cc12d43692"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/ui/separator.tsx": {
+    "mtime": 1778577613.1506085,
+    "hash": "3de2dca3e47ab29c4b1f632671545628"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/ui/glass-card.tsx": {
+    "mtime": 1778579539.6023898,
+    "hash": "8007be9c5b7bcc7a33e141106bb104f2"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/ui/avatar.tsx": {
+    "mtime": 1778577614.1685889,
+    "hash": "8b41492907a73176027427a3f0fd2302"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/ui/card.tsx": {
+    "mtime": 1778577612.8496144,
+    "hash": "77a10bd948ca424972a28e704a3df604"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/ui/badge.tsx": {
+    "mtime": 1778577613.0216112,
+    "hash": "e4ec840217040d5630ee6ed7213a1d72"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/shared/WalletButton.tsx": {
+    "mtime": 1778581463.5284524,
+    "hash": "6009d733165285756d40f2bd07005135"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/shared/StatusBadge.tsx": {
+    "mtime": 1778577775.44981,
+    "hash": "aced91bd3cd0e37fafcf901308a91f45"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/shared/SpeciesIcon.tsx": {
+    "mtime": 1778577787.127216,
+    "hash": "87f85371a2d7623dea05ef1b84ab60a0"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/shared/ExplorerLink.tsx": {
+    "mtime": 1778581617.4724853,
+    "hash": "ce9ac769a385f835a615c949007919e0"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/evolution/EvolutionHistory.tsx": {
+    "mtime": 1778577990.8452027,
+    "hash": "928c437fe1d2e8a80e2459b3ff93e222"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/evolution/EvolutionCard.tsx": {
+    "mtime": 1778577966.6829705,
+    "hash": "faa93175db0e0ac52272ec89a92abb66"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/components/evolution/MutationLog.tsx": {
+    "mtime": 1778577978.2644515,
+    "hash": "d5ef1fc347ac0553677ae7c4dfff3039"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/types/index.ts": {
+    "mtime": 1778577699.9794164,
+    "hash": "494e0a62981699cb54315a46a0edfac2"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/hooks/use-mobile.ts": {
+    "mtime": 1778579737.3998008,
+    "hash": "aaea530f5a96d2be22c98bd654d31e50"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/lib/mock-data.ts": {
+    "mtime": 1778577760.182744,
+    "hash": "d935322088563ba3e0693f5cca99e9b1"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/lib/env.ts": {
+    "mtime": 1778583015.748884,
+    "hash": "88c90dc077fb563cdc6dbf8de6c44fa5"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/lib/wagmi.ts": {
+    "mtime": 1778583180.8942451,
+    "hash": "2999e2c9fc72cc72124c8c1848bed406"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/lib/0g.ts": {
+    "mtime": 1778581362.2672348,
+    "hash": "8966b29c4c7162fe9a46e7d3c70f47df"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/lib/utils.ts": {
+    "mtime": 1778577415.9174073,
+    "hash": "5a6fd53fdcf2be529e9cc0b718fde352"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/lib/constants.ts": {
+    "mtime": 1778581464.3747058,
+    "hash": "17d1fa7858d779f6d160017a43e314b9"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/lib/genesis-templates.ts": {
+    "mtime": 1778584269.6530025,
+    "hash": "d843ead812364ed20da2d35860dc4f16"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/lib/store.ts": {
+    "mtime": 1778581363.2386193,
+    "hash": "46b4a8c0565b7d0ea197e47af670efeb"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/lib/contracts/subscription-escrow.ts": {
+    "mtime": 1778583016.8390145,
+    "hash": "cf67180e497f6450e54f63db7b7be9ec"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/lib/contracts/index.ts": {
+    "mtime": 1778583017.0180361,
+    "hash": "f84318aabd7207c9e74fb7ea26eb0b7b"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/lib/contracts/superfluid.ts": {
+    "mtime": 1778583017.1990583,
+    "hash": "90f33c80dd3e67cb8844411896d92945"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/lib/contracts/marketplace.ts": {
+    "mtime": 1778583016.451968,
+    "hash": "c11cdd0dba6bffbb3ae1da4bc0c03e35"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/lib/contracts/evolution-coordinator.ts": {
+    "mtime": 1778583016.6479914,
+    "hash": "cd81bfea67bbffb5f2efc13f274a16da"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/lib/contracts/erc7857-agent-id.ts": {
+    "mtime": 1778583215.9357984,
+    "hash": "823d4458a2a5254b71bae8eda293ed98"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/about.md": {
+    "mtime": 1778580531.3886304,
+    "hash": "6bf855f40d1015c9d9bf3235dbaad058"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/ogintegration.md": {
+    "mtime": 1778580909.6129186,
+    "hash": "a9442aea29fb1c6ce55ba5277c602f8c"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/CLAUDE.md": {
+    "mtime": 1778570102.17125,
+    "hash": "5c27369b226fcf2be8a6cfe52224e767"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/README.md": {
+    "mtime": 1778570060.9767118,
+    "hash": "f15aaa42d5d299d091b1171097ea56ad"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/TODO.md": {
+    "mtime": 1778587238.3020616,
+    "hash": "e84520e6128b5cdd1ec3ef6160c222a0"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/GEMINI.md": {
+    "mtime": 1778573454.2111952,
+    "hash": "da79aa9343cd2b362206f03762160abc"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/AGENTS.md": {
+    "mtime": 1778572903.8712082,
+    "hash": "407b905a047b8f3c4879c7fc27df0450"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/docs/architecture.md": {
+    "mtime": 1778583181.762321,
+    "hash": "324a55bec65bf08e590018ecd926b13e"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/docs/demo-contract.md": {
+    "mtime": 1778587238.0840588,
+    "hash": "7d93981115d24f8936e5251219344cc3"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/0g-agent-nft/README.md": {
+    "mtime": 1778586123.8985267,
+    "hash": "1150ee50e5cebe9697e4efd515788abe"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/0g-agent-nft/LICENSE.md": {
+    "mtime": 1778586123.8985267,
+    "hash": "3853e2a78a247145b4aa16667736f6de"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/0g-agent-nft/doc/erc-7857.md": {
+    "mtime": 1778586123.900775,
+    "hash": "92abaf61df000365c3658ca0b00ac176"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/public/window.svg": {
+    "mtime": 1778570060.9855072,
+    "hash": "a2760511c65806022ad20adf74370ff3"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/public/globe.svg": {
+    "mtime": 1778570060.9852154,
+    "hash": "2aaafa6a49b6563925fe440891e32717"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/public/next.svg": {
+    "mtime": 1778570060.9852505,
+    "hash": "8e061864f388b47f33a1c3780831193e"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/public/file.svg": {
+    "mtime": 1778570060.9767118,
+    "hash": "d09f95206c3fa0bb9bd9fefabfd0ea71"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/public/vercel.svg": {
+    "mtime": 1778570060.9854708,
+    "hash": "c0af2f507b369b085b35ef4bbe3bcf1e"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/0g-agent-nft/doc/img/zkp_oracle.jpeg": {
+    "mtime": 1778586123.908913,
+    "hash": "4190d3b86f5eaf4032e5645b1a941805"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/0g-agent-nft/doc/img/oracle_overview.jpeg": {
+    "mtime": 1778586123.9044452,
+    "hash": "b8ed694f9ca0cf0b6e10013805e72a87"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/0g-agent-nft/doc/img/tee_oracle.jpeg": {
+    "mtime": 1778586123.9064765,
+    "hash": "ebf639980ba2ca00260f0d2fba3da28b"
+  },
+  "/home/arpit/Desktop/hackathon_projects/replicant/0g-agent-nft/doc/img/full_flow.jpeg": {
+    "mtime": 1778586123.9025955,
+    "hash": "12f345b5a2cc2d5794ab3f78d3d244d0"
+  }
+}

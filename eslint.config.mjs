@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    ".0g-skills/**",
+    "0g-agent-nft/**",
+    "out/**",
+    "cache_forge/**",
   ]),
 ]);
 
