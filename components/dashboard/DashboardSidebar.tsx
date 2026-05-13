@@ -24,6 +24,8 @@ import {
   Shield,
   ExternalLink,
   Sparkles,
+  GitBranch,
+  CreditCard,
 } from "lucide-react";
 
 const navItems = [
@@ -31,6 +33,8 @@ const navItems = [
   { title: "Genesis", href: "/dashboard/genesis", icon: Sparkles },
   { title: "Market", href: "/dashboard/marketplace", icon: Store },
   { title: "Evolution Chamber", href: "/dashboard/evolution", icon: FlaskConical },
+  { title: "Family Tree", href: "/dashboard/tree", icon: GitBranch },
+  { title: "Subscriptions", href: "/dashboard/subscriptions", icon: CreditCard },
   { title: "Vitals", href: "/dashboard/vitals", icon: Activity },
   { title: "Safety", href: "/dashboard/safety", icon: Shield },
 ];
@@ -74,26 +78,6 @@ export function DashboardSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarSeparator />
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Lineage</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  render={<Link href="/dashboard/tree" />}
-                  isActive={pathname.startsWith("/dashboard/tree")}
-                  tooltip="Family Tree"
-                >
-                  <Dna size={18} />
-                  <span>Family Tree</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

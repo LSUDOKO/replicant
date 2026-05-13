@@ -2,6 +2,7 @@ import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/s
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { ChainStatus } from "@/components/dashboard/ChainStatus";
 import { WalletButton } from "@/components/shared/WalletButton";
+import { NetworkGuard } from "@/components/shared/NetworkGuard";
 import { Separator } from "@/components/ui/separator";
 
 export default function DashboardLayout({
@@ -27,7 +28,9 @@ export default function DashboardLayout({
         </header>
 
         {/* Page content */}
-        <main className="mx-auto w-full max-w-7xl flex-1 p-4 sm:p-6">{children}</main>
+        <main className="mx-auto w-full max-w-7xl flex-1 p-4 sm:p-6">
+          <NetworkGuard>{children}</NetworkGuard>
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );

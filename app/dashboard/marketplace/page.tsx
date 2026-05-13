@@ -1,4 +1,5 @@
 import { MarketplaceGrid } from "@/components/marketplace/MarketplaceGrid";
+import { ListingForm } from "@/components/marketplace/ListingForm";
 
 export default function MarketplacePage() {
   return (
@@ -11,6 +12,7 @@ export default function MarketplacePage() {
         </p>
       </div>
 
+      <ListingForm />
       <MarketplaceGrid />
     </div>
   );

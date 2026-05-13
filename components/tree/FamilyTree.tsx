@@ -12,91 +12,109 @@ import {
   useEdgesState,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-
 import { AgentNode } from "./AgentNode";
 import { NodeDetailPanel } from "./NodeDetailPanel";
-import { MOCK_TREE_NODES, MOCK_TREE_EDGES } from "@/lib/mock-data";
+import { useDashboardData } from "@/lib/queries/use-dashboard-data";
+import { useChildren } from "@/lib/queries/agents";
+import { useAccount } from "wagmi";
+import { Loader2 } from "lucide-react";
 import type { AgentStatus, AgentSpecies } from "@/types";
 
-const nodeTypes: NodeTypes = {
-  agent: AgentNode,
-};
-
-function buildNodes(): Node[] {
-  // Simple layout: arrange by generation vertically, spread horizontally
-  const generationGroups: Record<number, typeof MOCK_TREE_NODES> = {};
-  MOCK_TREE_NODES.forEach((n) => {
-    if (!generationGroups[n.generation]) generationGroups[n.generation] = [];
-    generationGroups[n.generation].push(n);
-  });
-
-  const nodes: Node[] = [];
-  Object.entries(generationGroups).forEach(([gen, group]) => {
-    const genNum = parseInt(gen);
-    const totalWidth = group.length * 240;
-    const startX = -totalWidth / 2;
-    group.forEach((n, i) => {
-      nodes.push({
-        id: n.id,
-        type: "agent",
-        position: { x: startX + i * 240, y: genNum * 160 },
-        data: {
-          name: n.name,
-          species: n.species,
-          generation: n.generation,
-          status: n.status,
-          fitnessScore: n.fitnessScore,
-        },
-      });
-    });
-  });
-
-  return nodes;
-}
-
-function buildEdges(): Edge[] {
-  return MOCK_TREE_EDGES.map((e, i) => ({
-    id: `edge-${i}`,
-    source: e.source,
-    target: e.target,
-    animated: true,
-    style: { stroke: "#2A2A3D", strokeWidth: 2 },
-  }));
-}
-
-interface SelectedNode {
-  id: string;
-  name: string;
-  species: AgentSpecies;
-  generation: number;
-  status: AgentStatus;
-  fitnessScore: number;
-}
+const nodeTypes: NodeTypes = { agent: AgentNode };
 
 export function FamilyTree() {
-  const initialNodes = useMemo(() => buildNodes(), []);
-  const initialEdges = useMemo(() => buildEdges(), []);
-  const [nodes, , onNodesChange] = useNodesState(initialNodes);
-  const [edges, , onEdgesChange] = useEdgesState(initialEdges);
-  const [selected, setSelected] = useState<SelectedNode | null>(null);
+  const { agents, isLoading } = useDashboardData();
+  const { isConnected } = useAccount();
+  const [selected, setSelected] = useState<{
+    id: string; name: string; species: AgentSpecies;
+    generation: number; status: AgentStatus; fitnessScore: number;
+  } | null>(null);
+
+  const nodes = useMemo<Node[]>(() => {
+    const generationGroups: Record<number, typeof agents> = {};
+    agents.forEach((a) => {
+      if (!generationGroups[a.generation]) generationGroups[a.generation] = [];
+      generationGroups[a.generation].push(a);
+    });
+
+    const result: Node[] = [];
+    Object.entries(generationGroups).forEach(([gen, group]) => {
+      const genNum = parseInt(gen);
+      const totalWidth = group.length * 240;
+      const startX = -totalWidth / 2;
+      group.forEach((a, i) => {
+        result.push({
+          id: a.id,
+          type: "agent",
+          position: { x: startX + i * 240, y: genNum * 160 },
+          data: {
+            name: a.name,
+            species: a.species,
+            generation: a.generation,
+            status: a.status,
+            fitnessScore: a.fitnessScore,
+          },
+        });
+      });
+    });
+    return result;
+  }, [agents]);
+
+  const edges = useMemo<Edge[]>(() => {
+    const result: Edge[] = [];
+    const added = new Set<string>();
+    agents.forEach((a) => {
+      if (a.parentId && !added.has(`${a.parentId}-${a.id}`)) {
+        added.add(`${a.parentId}-${a.id}`);
+        result.push({
+          id: `edge-${a.parentId}-${a.id}`,
+          source: a.parentId,
+          target: a.id,
+          animated: true,
+          style: { stroke: "#2A2A3D", strokeWidth: 2 },
+        });
+      }
+    });
+    return result;
+  }, [agents]);
+
+  const [flowNodes, , onNodesChange] = useNodesState(nodes);
+  const [flowEdges, , onEdgesChange] = useEdgesState(edges);
 
   const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
-    const d = node.data as unknown as SelectedNode;
-    setSelected({
-      id: node.id,
-      name: d.name,
-      species: d.species,
-      generation: d.generation,
-      status: d.status,
-      fitnessScore: d.fitnessScore,
-    });
+    const d = node.data as { name: string; species: AgentSpecies; generation: number; status: AgentStatus; fitnessScore: number };
+    setSelected({ id: node.id, name: d.name, species: d.species, generation: d.generation, status: d.status, fitnessScore: d.fitnessScore });
   }, []);
 
+  if (!isConnected) {
+    return (
+      <div className="flex h-[600px] items-center justify-center rounded-xl border border-border bg-card">
+        <p className="text-sm text-muted-foreground">Connect wallet to view family tree</p>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex h-[600px] items-center justify-center rounded-xl border border-border bg-card">
+        <Loader2 size={24} className="animate-spin text-muted-foreground/50" />
+      </div>
+    );
+  }
+
+  if (agents.length === 0) {
+    return (
+      <div className="flex h-[600px] items-center justify-center rounded-xl border border-border bg-card">
+        <p className="text-sm text-muted-foreground">No agents minted yet</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="relative h-[600px] w-full rounded-xl border border-border bg-card overflow-hidden">
+    <div className="relative h-[600px] w-full overflow-hidden rounded-xl border border-border bg-card">
       <ReactFlow
-        nodes={nodes}
-        edges={edges}
+        nodes={flowNodes}
+        edges={flowEdges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeClick={onNodeClick}
@@ -108,11 +126,8 @@ export function FamilyTree() {
         proOptions={{ hideAttribution: true }}
       >
         <Background color="#1E1E2E" gap={24} size={1} />
-        <Controls
-          className="!bg-surface !border-border !rounded-lg !shadow-none [&>button]:!bg-surface [&>button]:!border-border [&>button]:!text-muted-foreground [&>button:hover]:!bg-surface-hover [&>button]:!rounded-md"
-        />
+        <Controls className="!rounded-lg !border-border !bg-surface !shadow-none [&>button]:!rounded-md [&>button]:!border-border [&>button]:!bg-surface [&>button]:!text-muted-foreground [&>button:hover]:!bg-surface-hover" />
       </ReactFlow>
-
       <NodeDetailPanel node={selected} onClose={() => setSelected(null)} />
     </div>
   );

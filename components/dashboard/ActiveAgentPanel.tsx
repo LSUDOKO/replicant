@@ -4,14 +4,28 @@ import { Cpu, Dna } from "lucide-react";
 
 import { ExplorerLinkWrapper } from "@/components/shared/ExplorerLink";
 import { GlassCard } from "@/components/ui/glass-card";
-import { MOCK_AGENTS } from "@/lib/mock-data";
+import { useDashboardData } from "@/lib/queries/use-dashboard-data";
 import { useReplicantStore } from "@/lib/store";
 
 export function ActiveAgentPanel() {
-  const activeAgentId = useReplicantStore((state) => state.activeAgentId);
-  const setActiveAgent = useReplicantStore((state) => state.setActiveAgent);
+  const { agents, isLoading } = useDashboardData();
+  const activeAgentId = useReplicantStore((s) => s.activeAgentId);
+  const setActiveAgent = useReplicantStore((s) => s.setActiveAgent);
+
   const activeAgent =
-    MOCK_AGENTS.find((agent) => agent.id === activeAgentId) ?? MOCK_AGENTS[0];
+    agents.find((a) => a.id === activeAgentId) ?? agents[0];
+
+  if (isLoading || !activeAgent) {
+    return (
+      <GlassCard className="p-5">
+        <div className="space-y-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-6 animate-pulse rounded bg-surface" />
+          ))}
+        </div>
+      </GlassCard>
+    );
+  }
 
   return (
     <GlassCard className="p-5">
@@ -29,21 +43,15 @@ export function ActiveAgentPanel() {
 
       <div className="mt-5 grid grid-cols-3 gap-3 text-center">
         <div className="rounded-xl border border-border bg-surface/50 p-3">
-          <p className="font-mono text-lg text-primary">
-            Gen-{activeAgent.generation}
-          </p>
+          <p className="font-mono text-lg text-primary">Gen-{activeAgent.generation}</p>
           <p className="label-uppercase mt-1 text-muted-foreground">Lineage</p>
         </div>
         <div className="rounded-xl border border-border bg-surface/50 p-3">
-          <p className="font-mono text-lg text-accent-evolution">
-            {activeAgent.fitnessScore}
-          </p>
+          <p className="font-mono text-lg text-accent-evolution">{activeAgent.fitnessScore}</p>
           <p className="label-uppercase mt-1 text-muted-foreground">Fitness</p>
         </div>
         <div className="rounded-xl border border-border bg-surface/50 p-3">
-          <p className="font-mono text-lg text-success">
-            {activeAgent.alignmentScore}
-          </p>
+          <p className="font-mono text-lg text-success">{activeAgent.alignmentScore}</p>
           <p className="label-uppercase mt-1 text-muted-foreground">Safety</p>
         </div>
       </div>
@@ -57,13 +65,13 @@ export function ActiveAgentPanel() {
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        {MOCK_AGENTS.slice(0, 4).map((agent) => (
+        {agents.slice(0, 4).map((agent) => (
           <button
             key={agent.id}
             type="button"
             onClick={() => setActiveAgent(agent.id)}
-            className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground transition-all duration-200 hover:border-accent-evolution/50 hover:text-foreground data-[active=true]:border-primary/40 data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
             data-active={agent.id === activeAgent.id}
+            className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground transition-all duration-200 hover:border-accent-evolution/50 hover:text-foreground data-[active=true]:border-primary/40 data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
           >
             {agent.name}
           </button>

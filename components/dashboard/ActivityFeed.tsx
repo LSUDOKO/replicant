@@ -1,8 +1,10 @@
+"use client";
+
 import { GlassCard } from "@/components/ui/glass-card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ExplorerLink } from "@/components/shared/ExplorerLink";
-import { MOCK_ACTIVITY } from "@/lib/mock-data";
-import { Dna, ShoppingCart, Zap, Package, ArrowRightLeft } from "lucide-react";
+import { useDashboardData } from "@/lib/queries/use-dashboard-data";
+import { Dna, ShoppingCart, Zap, Package, ArrowRightLeft, Loader2 } from "lucide-react";
 
 const typeConfig = {
   mint: { icon: Package, color: "text-primary", bg: "bg-primary/10" },
@@ -24,43 +26,58 @@ function formatTimestamp(ts: string) {
 }
 
 export function ActivityFeed() {
+  const { activity, isLoading, isMockData } = useDashboardData();
+
   return (
     <GlassCard className="p-4">
-      <div className="pb-2">
-        <h2 className="text-base font-medium">Recent Activity</h2>
-        <p className="text-xs text-muted-foreground">Latest on-chain events</p>
+      <div className="flex items-center justify-between pb-2">
+        <div>
+          <h2 className="text-base font-medium">Recent Activity</h2>
+          <p className="text-xs text-muted-foreground">Latest on-chain events</p>
+        </div>
+        {isMockData && (
+          <span className="text-[10px] text-muted-foreground/60">demo data</span>
+        )}
       </div>
       <div>
         <ScrollArea className="h-[320px] pr-3">
-          <div className="space-y-4">
-            {MOCK_ACTIVITY.map((event) => {
-              const config = typeConfig[event.type];
-              const Icon = config.icon;
-              return (
-                <div key={event.id} className="flex gap-3">
-                  <div
-                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${config.bg}`}
-                  >
-                    <Icon size={14} className={config.color} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="text-sm font-medium truncate">
-                        {event.agentName}
-                      </p>
-                      <span className="shrink-0 text-xs text-muted-foreground">
-                        {formatTimestamp(event.timestamp)}
-                      </span>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 size={20} className="animate-spin text-muted-foreground/50" />
+            </div>
+          ) : activity.length === 0 ? (
+            <div className="py-12 text-center text-sm text-muted-foreground/60">No activity yet</div>
+          ) : (
+            <div className="space-y-4">
+              {activity.map((event) => {
+                const config = typeConfig[event.type];
+                const Icon = config.icon;
+                return (
+                  <div key={event.id} className="flex gap-3">
+                    <div
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${config.bg}`}
+                    >
+                      <Icon size={14} className={config.color} />
                     </div>
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      {event.description}
-                    </p>
-                    <ExplorerLink value={event.txHash} className="mt-1" />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="truncate text-sm font-medium">
+                          {event.agentName}
+                        </p>
+                        <span className="shrink-0 text-xs text-muted-foreground">
+                          {formatTimestamp(event.timestamp)}
+                        </span>
+                      </div>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {event.description}
+                      </p>
+                      {event.txHash && <ExplorerLink value={event.txHash} className="mt-1" />}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </ScrollArea>
       </div>
     </GlassCard>

@@ -1,6 +1,6 @@
 import { publicEnv } from "@/lib/env";
 
-export const erc7857AgentIdAbi = [
+export const replicantAgentNftAbi = [
   {
     type: "function",
     name: "mintGenesis",
@@ -13,18 +13,7 @@ export const erc7857AgentIdAbi = [
   },
   {
     type: "function",
-    name: "clone",
-    stateMutability: "nonpayable",
-    inputs: [
-      { name: "parentId", type: "uint256" },
-      { name: "childGenomeHash", type: "bytes32" },
-      { name: "fitnessScore", type: "uint256" },
-    ],
-    outputs: [{ name: "childId", type: "uint256" }],
-  },
-  {
-    type: "function",
-    name: "cloneWithProof",
+    name: "cloneWithEvolution",
     stateMutability: "nonpayable",
     inputs: [
       { name: "parentId", type: "uint256" },
@@ -33,19 +22,36 @@ export const erc7857AgentIdAbi = [
       { name: "teeAttestationHash", type: "bytes32" },
       { name: "alignmentVerdictHash", type: "bytes32" },
       { name: "fitnessScore", type: "uint256" },
+      {
+        name: "proofs",
+        type: "tuple[]",
+        components: [
+          {
+            name: "accessProof",
+            type: "tuple",
+            components: [
+              { name: "dataHash", type: "bytes32" },
+              { name: "targetPubkey", type: "bytes" },
+              { name: "nonce", type: "bytes" },
+              { name: "proof", type: "bytes" },
+            ],
+          },
+          {
+            name: "ownershipProof",
+            type: "tuple",
+            components: [
+              { name: "oracleType", type: "uint8" },
+              { name: "dataHash", type: "bytes32" },
+              { name: "sealedKey", type: "bytes" },
+              { name: "targetPubkey", type: "bytes" },
+              { name: "nonce", type: "bytes" },
+              { name: "proof", type: "bytes" },
+            ],
+          },
+        ],
+      },
     ],
     outputs: [{ name: "childId", type: "uint256" }],
-  },
-  {
-    type: "function",
-    name: "authorizeUsage",
-    stateMutability: "nonpayable",
-    inputs: [
-      { name: "agentId", type: "uint256" },
-      { name: "user", type: "address" },
-      { name: "expiry", type: "uint256" },
-    ],
-    outputs: [],
   },
   {
     type: "function",
@@ -80,6 +86,23 @@ export const erc7857AgentIdAbi = [
   },
   {
     type: "function",
+    name: "getAgentMetadata",
+    stateMutability: "view",
+    inputs: [{ name: "agentId", type: "uint256" }],
+    outputs: [
+      { name: "speciesType", type: "uint8" },
+      { name: "generation", type: "uint32" },
+      { name: "status", type: "uint8" },
+      { name: "parentId", type: "uint256" },
+      { name: "fitnessScore", type: "uint256" },
+      { name: "stake", type: "uint256" },
+      { name: "storageRootHash", type: "bytes32" },
+      { name: "teeAttestationHash", type: "bytes32" },
+      { name: "alignmentVerdictHash", type: "bytes32" },
+    ],
+  },
+  {
+    type: "function",
     name: "ownerOf",
     stateMutability: "view",
     inputs: [{ name: "tokenId", type: "uint256" }],
@@ -87,22 +110,27 @@ export const erc7857AgentIdAbi = [
   },
   {
     type: "function",
-    name: "agents",
+    name: "creatorOf",
     stateMutability: "view",
-    inputs: [{ name: "agentId", type: "uint256" }],
-    outputs: [
-      { name: "encryptedGenomeHash", type: "bytes32" },
-      { name: "storageRootHash", type: "bytes32" },
-      { name: "teeAttestationHash", type: "bytes32" },
-      { name: "alignmentVerdictHash", type: "bytes32" },
-      { name: "speciesType", type: "uint8" },
-      { name: "generation", type: "uint32" },
-      { name: "status", type: "uint8" },
-      { name: "parentId", type: "uint256" },
-      { name: "fitnessScore", type: "uint256" },
-      { name: "stake", type: "uint256" },
-      { name: "createdAt", type: "uint256" },
+    inputs: [{ name: "tokenId", type: "uint256" }],
+    outputs: [{ name: "creator", type: "address" }],
+  },
+  {
+    type: "function",
+    name: "balanceOf",
+    stateMutability: "view",
+    inputs: [{ name: "owner", type: "address" }],
+    outputs: [{ name: "balance", type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "approve",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "to", type: "address" },
+      { name: "tokenId", type: "uint256" },
     ],
+    outputs: [],
   },
   {
     type: "event",
@@ -131,6 +159,25 @@ export const erc7857AgentIdAbi = [
       { name: "agentId", type: "uint256", indexed: true },
       { name: "alignmentViolationHash", type: "bytes32", indexed: false },
       { name: "slashAmount", type: "uint256", indexed: false },
+    ],
+  },
+  {
+    type: "event",
+    name: "AgentArchived",
+    inputs: [{ name: "agentId", type: "uint256", indexed: true }],
+  },
+  {
+    type: "event",
+    name: "EvolutionStatusSet",
+    inputs: [{ name: "agentId", type: "uint256", indexed: true }],
+  },
+  {
+    type: "event",
+    name: "Transfer",
+    inputs: [
+      { name: "from", type: "address", indexed: true },
+      { name: "to", type: "address", indexed: true },
+      { name: "tokenId", type: "uint256", indexed: true },
     ],
   },
 ] as const;

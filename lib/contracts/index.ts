@@ -1,6 +1,6 @@
 export {
   agentIdContractAddresses,
-  erc7857AgentIdAbi,
+  replicantAgentNftAbi as erc7857AgentIdAbi,
 } from "@/lib/contracts/erc7857-agent-id";
 export {
   evolutionCoordinatorContractAddresses,
