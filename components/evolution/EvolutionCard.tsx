@@ -84,7 +84,19 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
     fitnessImprovement?: number;
   }>({});
 
-   const { data: reqHash, isPending: reqPending, writeContractAsync: writeRequest, reset: resetReq } = useWriteContract();
+   const userAgents = agents.filter((a) => a.owner.toLowerCase() === address?.toLowerCase());
+   // Priority: Active > Evolving > Slashed > Archived
+   const sortedUserAgents = [...userAgents].sort((a, b) => {
+     const order: Record<string, number> = { active: 0, evolving: 1, slashed: 2, archived: 3 };
+     return (order[a.status] ?? 4) - (order[b.status] ?? 4);
+   });
+   
+   const evolvableAgents = userAgents.filter((a) => a.status === "active" || a.status === "evolving");
+   const activeAgent = userAgents.find((a) => a.id === activeAgentId) ?? evolvableAgents[0] ?? userAgents[0];
+
+   // Separate write contracts for each transaction to avoid wallet popup conflicts
+   const { data: reqHash, isPending: reqPending, writeContractAsync: writeRequestEvolution, reset: resetReq } = useWriteContract();
+   const { data: completeHashState, isPending: completePending, writeContractAsync: writeCompleteEvolution, reset: resetComplete } = useWriteContract();
 
    // Pre-flight check: Verify user owns the active agent on-chain
    const { data: agentOwner } = useReadContract({
@@ -103,16 +115,6 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
      query: { enabled: !!activeAgent?.id && !!publicEnv.contracts.agentId },
    });
 
-  const userAgents = agents.filter((a) => a.owner.toLowerCase() === address?.toLowerCase());
-  // Priority: Active > Evolving > Slashed > Archived
-  const sortedUserAgents = [...userAgents].sort((a, b) => {
-    const order: Record<string, number> = { active: 0, evolving: 1, slashed: 2, archived: 3 };
-    return (order[a.status] ?? 4) - (order[b.status] ?? 4);
-  });
-  
-  const evolvableAgents = userAgents.filter((a) => a.status === "active" || a.status === "evolving");
-  const activeAgent = userAgents.find((a) => a.id === activeAgentId) ?? evolvableAgents[0] ?? userAgents[0];
-
    // canEvolve requires: active status, wallet connected, coordinator available, and on-chain ownership verified
    const ownershipVerified = agentOwner?.toLowerCase() === address?.toLowerCase();
    const canEvolve = activeAgent?.status === "active" && isConnected && !!COORDINATOR_ADDRESS && (agentOwner === undefined || ownershipVerified);
@@ -123,11 +125,12 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
       setError("This agent is already in the mutation chamber.");
       return;
     }
-    setError(null);
-    setStage("requesting");
-    resetReq();
+     setError(null);
+     setStage("requesting");
+     resetReq();
+     resetComplete();
 
-     try {
+      try {
        // First check: UI-level ownership (from dashboard data)
        if (activeAgent.owner.toLowerCase() !== address?.toLowerCase()) {
          throw new Error("You do not own this agent (UI check). Ownership is required for evolution.");
@@ -232,8 +235,9 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
       }
 
        // PRODUCTION MODE: Full on-chain transaction flow
+       let hash: Hash;
        try {
-         const hash = await writeRequest({
+         hash = await writeRequestEvolution({
            address: COORDINATOR_ADDRESS,
            abi: replicantEvolutionCoordinatorAbi,
            functionName: "requestEvolution",
@@ -250,9 +254,9 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
          throw writeErr;
        }
 
-      // Wait for confirmation to get requestId
-      if (!publicClient) throw new Error("Public client not available");
-      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+       // Wait for confirmation to get requestId
+       if (!publicClient) throw new Error("Public client not available");
+       const receipt = await publicClient.waitForTransactionReceipt({ hash });
       const logs = parseEventLogs({
         abi: replicantEvolutionCoordinatorAbi,
         eventName: "EvolutionRequested",
@@ -307,21 +311,21 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
       setStage("minting");
       await delay(500);
 
-      // Call completeEvolution on-chain to actually mint the child agent
-      const completeHash = await writeRequest({
-        address: COORDINATOR_ADDRESS,
-        abi: replicantEvolutionCoordinatorAbi,
-        functionName: "completeEvolution",
-        args: [
-          BigInt(requestId),
-          evolveData.childGenomeHash as `0x${string}`,
-          evolveData.storageRootHash as `0x${string}`,
-          evolveData.teeAttestationHash as `0x${string}`,
-          alignData.alignmentVerdictHash as `0x${string}`,
-          BigInt(Math.floor(activeAgent.fitnessScore + evolveData.fitnessImprovement)),
-          [], // proofs - empty for now, production TEE would provide these
-        ],
-      });
+       // Call completeEvolution on-chain to actually mint the child agent
+       const completeHash = await writeCompleteEvolution({
+         address: COORDINATOR_ADDRESS,
+         abi: replicantEvolutionCoordinatorAbi,
+         functionName: "completeEvolution",
+         args: [
+           BigInt(requestId),
+           evolveData.childGenomeHash as `0x${string}`,
+           evolveData.storageRootHash as `0x${string}`,
+           evolveData.teeAttestationHash as `0x${string}`,
+           alignData.alignmentVerdictHash as `0x${string}`,
+           BigInt(Math.floor(activeAgent.fitnessScore + evolveData.fitnessImprovement)),
+           [], // proofs - empty for now, production TEE would provide these
+         ],
+       });
 
       // Wait for completion transaction confirmation
       const completeReceipt = await publicClient.waitForTransactionReceipt({ hash: completeHash });
@@ -368,20 +372,23 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
     }
   }
 
-  function reset() {
-    setStage("idle");
-    setError(null);
-    setChildId(null);
-    setEvolutionData({});
-    resetReq();
-  }
+   function reset() {
+     setStage("idle");
+     setError(null);
+     setChildId(null);
+     setEvolutionData({});
+     resetReq();
+     resetComplete();
+   }
 
-  const txStatus =
-    reqPending ? "signing"
-    : stage === "requested" ? "pending"
-    : stage === "done" ? "confirmed"
-    : stage === "failed" ? "failed"
-    : null;
+   const txStatus =
+     reqPending ? "signing"
+     : completePending ? "signing"
+     : stage === "requested" ? "pending"
+     : stage === "minting" ? "pending"
+     : stage === "done" ? "confirmed"
+     : stage === "failed" ? "failed"
+     : null;
 
   if (!activeAgent && !isConnected) {
     return (
@@ -568,48 +575,48 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
           </div>
         )}
 
-        {/* Tx status */}
-        {txStatus && (
-          <TxStatusCard
-            status={txStatus}
-            hash={reqHash}
-            error={error ?? undefined}
-            label={STAGE_LABELS[stage]}
-          />
-        )}
+         {/* Tx status */}
+         {txStatus && (
+           <TxStatusCard
+             status={txStatus}
+             hash={stage === "minting" ? completeHashState : reqHash}
+             error={error ?? undefined}
+             label={STAGE_LABELS[stage]}
+           />
+         )}
 
-        {/* Child link */}
-        {childId && stage === "done" && (
-          <div className="flex items-center gap-2 rounded-xl border border-violet-500/20 bg-violet-500/5 p-3 text-sm text-violet-400">
-            <CheckCircle2 size={16} />
-            {isWired 
-              ? `Evolution Successful! Child Agent #${childId.toString()} minted`
-              : `Evolution Simulated! Data generated for Agent #${childId.toString()}`
-            }
-          </div>
-        )}
+         {/* Child link */}
+         {childId && stage === "done" && (
+           <div className="flex items-center gap-2 rounded-xl border border-violet-500/20 bg-violet-500/5 p-3 text-sm text-violet-400">
+             <CheckCircle2 size={16} />
+             {isWired 
+               ? `Evolution Successful! Child Agent #${childId.toString()} minted`
+               : `Evolution Simulated! Data generated for Agent #${childId.toString()}`
+             }
+           </div>
+         )}
 
-        {/* Wiring Warning */}
-        {!isWired && COORDINATOR_ADDRESS && isConnected && (
-          <div className="flex flex-col gap-2 rounded-xl border border-violet-500/20 bg-violet-500/5 p-3 text-xs text-white">
-            <div className="flex items-center gap-2 font-bold text-violet-400">
-              <AlertTriangle size={14} />
-              SIMULATION MODE
-            </div>
-            <p className="text-white/80">
-              Evolution Coordinator not authorized on Agent NFT contract. Running in simulation mode - evolution data will be generated but not minted on-chain.
-            </p>
-            <div className="mt-1 rounded bg-black/20 p-2 font-mono break-all text-white/60 text-[10px]">
-              Expected: {COORDINATOR_ADDRESS.slice(0, 10)}...{COORDINATOR_ADDRESS.slice(-8)}
-              <br />
-              Actual: {evolutionExecutor ? `${evolutionExecutor.toString().slice(0, 10)}...${evolutionExecutor.toString().slice(-8)}` : "None"}
-            </div>
-          </div>
-        )}
+         {/* Wiring Warning */}
+         {!isWired && COORDINATOR_ADDRESS && isConnected && (
+           <div className="flex flex-col gap-2 rounded-xl border border-violet-500/20 bg-violet-500/5 p-3 text-xs text-white">
+             <div className="flex items-center gap-2 font-bold text-violet-400">
+               <AlertTriangle size={14} />
+               SIMULATION MODE
+             </div>
+             <p className="text-white/80">
+               Evolution Coordinator not authorized on Agent NFT contract. Running in simulation mode - evolution data will be generated but not minted on-chain.
+             </p>
+             <div className="mt-1 rounded bg-black/20 p-2 font-mono break-all text-white/60 text-[10px]">
+               Expected: {COORDINATOR_ADDRESS.slice(0, 10)}...{COORDINATOR_ADDRESS.slice(-8)}
+               <br />
+               Actual: {evolutionExecutor ? `${evolutionExecutor.toString().slice(0, 10)}...${evolutionExecutor.toString().slice(-8)}` : "None"}
+             </div>
+           </div>
+         )}
 
-        {/* Request tx link */}
-        {reqHash && stage !== "idle" && (
-          <ExplorerLinkWrapper value={reqHash} type="tx" className="text-xs" />
+         {/* Request tx link */}
+         {(reqHash || completeHashState) && stage !== "idle" && (
+           <ExplorerLinkWrapper value={stage === "minting" ? completeHashState : reqHash} type="tx" className="text-xs" />
         )}
 
         {/* CTA */}
