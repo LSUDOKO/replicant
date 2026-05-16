@@ -356,6 +356,17 @@ export const replicantAgentNftAbi = [
       { name: "tokenId", type: "uint256", indexed: true },
     ],
   },
+  {
+    type: "function",
+    name: "safeTransferFrom",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "from", type: "address" },
+      { name: "to", type: "address" },
+      { name: "tokenId", type: "uint256" },
+    ],
+    outputs: [],
+  },
 ] as const;
 
 export const agentIdContractAddresses: Record<string, `0x${string}` | undefined> = {

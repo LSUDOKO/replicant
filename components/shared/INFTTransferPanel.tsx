@@ -40,10 +40,14 @@ export function INFTTransferPanel({ tokenId, ownerAddress, accentColor = "#8B5CF
     setError(null);
     reset();
     try {
+      // Use safeTransferFrom (ERC-721) instead of iTransferFrom (ERC-7857)
+      // because iTransferFrom requires real TEE oracle proofs for non-empty arrays
+      // and the contract reverts with ERC7857EmptyProof if proofs is empty.
+      // For testnet/hackathon, standard ERC-721 transfer is sufficient.
       const data = encodeFunctionData({
         abi: replicantAgentNftAbi,
-        functionName: "iTransferFrom",
-        args: [ownerAddress, recipient as Address, tokenId, []],
+        functionName: "safeTransferFrom",
+        args: [ownerAddress, recipient as Address, tokenId],
       });
       await sendTransactionAsync({
         to: nftAddr,
@@ -160,8 +164,7 @@ export function INFTTransferPanel({ tokenId, ownerAddress, accentColor = "#8B5CF
           >
             <AlertTriangle size={12} style={{ color: "#FFB800", flexShrink: 0, marginTop: "1px" }} />
             <p style={{ fontSize: "11px", color: "rgba(255,184,0,0.8)", lineHeight: 1.5 }}>
-              ERC-7857 secure transfer re-encrypts the genome for the new owner inside a TEE enclave.
-              On testnet, proofs are bypassed via SimpleVerifier.
+              ERC-7857 secure transfer requires TEE proofs. Using standard ERC-721 transfer for now — ownership transfers but encrypted genome data stays with current owner.
             </p>
           </div>
 
@@ -324,7 +327,7 @@ export function INFTTransferPanel({ tokenId, ownerAddress, accentColor = "#8B5CF
           }}
         >
           <CheckCircle2 size={12} />
-          {tab === "transfer" ? "iNFT transferred with encrypted genome." : "Executor authorized successfully."}
+          {tab === "transfer" ? "Ownership transferred!" : "Executor authorized successfully."}
         </div>
       )}
     </div>
