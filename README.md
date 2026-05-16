@@ -1,13 +1,11 @@
+><img width="847" height="286" alt="image" src="https://github.com/user-attachments/assets/93d99511-d921-4e53-84b5-a8a997c9250d" />
+
 # 🧬 REPLICANT 0G
 
 > **The World's First Decentralized AI Agent Protocol with Evolutionary Intelligence**
 
-[![Live on 0G Mainnet](https://img.shields.io/badge/Live-0G%20Mainnet-8B5CF6)](https://replicant0g.me)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Built with 0G](https://img.shields.io/badge/Built%20with-0G-00D4FF)](https://0g.ai)
-
 **Website:** [replicant0g.me](https://replicant0g.me)  
-**Explorer:** [0G Mainnet Explorer](https://chainscan.0g.ai)  
+**Explorer:** [0G Mainnet Explorer](https://chainscan.0g.ai/address/0x29474e943a0314b074f4e2bd5372254c40a92d5a)  
 **Network:** 0G Mainnet (Chain ID: 16661)
 
 ---
@@ -97,47 +95,8 @@ The current AI landscape suffers from three critical flaws:
 
 REPLICANT is built on a **5-layer architecture** that separates concerns and maximizes security:
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│  Layer 5: User Interface                                    │
-│  ├─ Next.js 16 Dashboard                                    │
-│  ├─ React 19 Components                                     │
-│  ├─ RainbowKit Wallet Integration                           │
-│  └─ Real-time Agent Monitoring                              │
-└─────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────┐
-│  Layer 4: Economic Layer (Smart Contracts)                  │
-│  ├─ ReplicantAgentNFT (ERC-7857 iNFT)                       │
-│  ├─ ReplicantMarketplace (Buy/Sell/List)                    │
-│  ├─ ReplicantSubscriptionEscrow (Rental)                    │
-│  └─ ReplicantEvolutionCoordinator (Breeding)                │
-└─────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────┐
-│  Layer 3: Intelligence Layer (0G Compute)                   │
-│  ├─ TEE Execution (Intel TDX / AMD SEV)                     │
-│  ├─ Sealed Mutation Engine                                  │
-│  ├─ Cryptographic Attestations                              │
-│  └─ Zero-Knowledge Proofs                                   │
-└─────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────┐
-│  Layer 2: Memory Layer (0G Storage)                         │
-│  ├─ Genome Storage (Encrypted Neural Weights)               │
-│  ├─ Evolution Logs (Mutation History)                       │
-│  ├─ Performance Metrics (KV Store)                          │
-│  └─ Alignment Verdicts (Audit Trail)                        │
-└─────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────┐
-│  Layer 1: Safety Layer (AI Alignment)                       │
-│  ├─ Alignment Verifier Nodes                                │
-│  ├─ Drift Detection                                         │
-│  ├─ Bias Scanning                                           │
-│  └─ Automatic Slashing                                      │
-└─────────────────────────────────────────────────────────────┘
-```
+<img width="1094" height="1146" alt="_- visual selection (3)" src="https://github.com/user-attachments/assets/9ee2a42b-ff34-44cd-b2e1-5e43c4d0af50" />
+
 
 ### Data Flow Example: Agent Evolution
 
@@ -168,6 +127,9 @@ REPLICANT is built on a **5-layer architecture** that separates concerns and max
 ## 🌐 0G Integration
 
 REPLICANT leverages **three core 0G technologies** to achieve decentralization:
+
+
+<img width="2833" height="1072" alt="_- visual selection (6)" src="https://github.com/user-attachments/assets/815914a8-021e-4107-9566-5b99bb71620e" />
 
 ### 1. **0G Chain (EVM-Compatible L1)**
 
@@ -336,6 +298,9 @@ function getEvolutionHistory(uint256 tokenId) external view returns (Evolution[]
 ```
 
 **Evolution Process:**
+
+<img width="1074" height="574" alt="_- visual selection (4)" src="https://github.com/user-attachments/assets/fcb2d322-a34f-42d9-a865-e3c91e519e97" />
+
 1. User stakes 0G tokens (evolution cost)
 2. Parent genome fetched from 0G Storage
 3. TEE runs genetic algorithm (mutation + crossover)
@@ -420,6 +385,9 @@ function claimEarnings(uint256 tokenId) external
 REPLICANT supports **6 specialized agent species**, each optimized for different tasks:
 
 ### 1. 🐂 Alpha Hunter (DeFi/Trading)
+
+<img width="1488" height="904" alt="_- visual selection (5)" src="https://github.com/user-attachments/assets/6206b959-55a6-4c04-90f6-4267d9f0473c" />
+
 **Domain:** Cryptocurrency sentiment analysis and trading signals
 
 **Capabilities:**
@@ -625,6 +593,8 @@ agentNFT.transferFrom(seller, buyer, tokenId);
 ```
 
 ### 🌳 On-Chain Lineage
+<img width="1201" height="757" alt="swappy-20260517-003701" src="https://github.com/user-attachments/assets/a8e845f6-0b71-4f64-a6d8-b5e773a9baef" />
+
 Immutable family tree with provable ancestry:
 ```solidity
 // Get all ancestors
