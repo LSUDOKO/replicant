@@ -2,6 +2,38 @@ import { publicEnv } from "@/lib/env";
 
 export const replicantAgentNftAbi = [
   {
+    type: "error",
+    name: "NotEvolutionExecutor",
+    inputs: [],
+  },
+  {
+    type: "error",
+    name: "NotAlignmentNode",
+    inputs: [],
+  },
+  {
+    type: "error",
+    name: "AgentBlocked",
+    inputs: [],
+  },
+  {
+    type: "error",
+    name: "AgentAlreadySlashed",
+    inputs: [],
+  },
+  {
+    type: "error",
+    name: "NotAdmin",
+    inputs: [],
+  },
+  {
+    type: "function",
+    name: "totalSupply",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
     type: "function",
     name: "mintGenesis",
     stateMutability: "payable",
@@ -53,6 +85,114 @@ export const replicantAgentNftAbi = [
     ],
     outputs: [{ name: "childId", type: "uint256" }],
   },
+   {
+     type: "function",
+     name: "iTransferFrom",
+     stateMutability: "nonpayable",
+     inputs: [
+       { name: "from", type: "address" },
+       { name: "to", type: "address" },
+       { name: "tokenId", type: "uint256" },
+       { name: "proofs", type: "bytes[]" },
+     ],
+     outputs: [],
+   },
+  {
+    type: "function",
+    name: "iCloneFrom",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "from", type: "address" },
+      { name: "to", type: "address" },
+      { name: "tokenId", type: "uint256" },
+      {
+        name: "proofs",
+        type: "tuple[]",
+        components: [
+          {
+            name: "accessProof",
+            type: "tuple",
+            components: [
+              { name: "dataHash", type: "bytes32" },
+              { name: "targetPubkey", type: "bytes" },
+              { name: "nonce", type: "bytes" },
+              { name: "proof", type: "bytes" },
+            ],
+          },
+          {
+            name: "ownershipProof",
+            type: "tuple",
+            components: [
+              { name: "oracleType", type: "uint8" },
+              { name: "dataHash", type: "bytes32" },
+              { name: "sealedKey", type: "bytes" },
+              { name: "targetPubkey", type: "bytes" },
+              { name: "nonce", type: "bytes" },
+              { name: "proof", type: "bytes" },
+            ],
+          },
+        ],
+      },
+    ],
+    outputs: [{ name: "newTokenId", type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "authorizeUsage",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "tokenId", type: "uint256" },
+      { name: "to", type: "address" },
+    ],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "revokeAuthorization",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "tokenId", type: "uint256" },
+      { name: "user", type: "address" },
+    ],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "authorizedUsersOf",
+    stateMutability: "view",
+    inputs: [{ name: "tokenId", type: "uint256" }],
+    outputs: [{ name: "users", type: "address[]" }],
+  },
+  {
+    type: "function",
+    name: "intelligentDatasOf",
+    stateMutability: "view",
+    inputs: [{ name: "tokenId", type: "uint256" }],
+    outputs: [
+      {
+        name: "datas",
+        type: "tuple[]",
+        components: [
+          { name: "dataDescription", type: "string" },
+          { name: "dataHash", type: "bytes32" },
+        ],
+      },
+    ],
+  },
+  {
+    type: "function",
+    name: "delegateAccess",
+    stateMutability: "nonpayable",
+    inputs: [{ name: "assistant", type: "address" }],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "verifier",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "address" }],
+  },
   {
     type: "function",
     name: "slash",
@@ -82,7 +222,7 @@ export const replicantAgentNftAbi = [
     name: "getChildren",
     stateMutability: "view",
     inputs: [{ name: "agentId", type: "uint256" }],
-    outputs: [{ name: "children", type: "uint256[]" }],
+    outputs: [{ name: "_children", type: "uint256[]" }],
   },
   {
     type: "function",
@@ -173,6 +313,15 @@ export const replicantAgentNftAbi = [
   },
   {
     type: "event",
+    name: "PublishedSealedKey",
+    inputs: [
+      { name: "_to", type: "address", indexed: true },
+      { name: "_tokenId", type: "uint256", indexed: true },
+      { name: "_sealedKeys", type: "bytes[]", indexed: false },
+    ],
+  },
+  {
+    type: "event",
     name: "Transfer",
     inputs: [
       { name: "from", type: "address", indexed: true },
@@ -182,7 +331,7 @@ export const replicantAgentNftAbi = [
   },
 ] as const;
 
-export const agentIdContractAddresses = {
-  galileo: publicEnv.network === "galileo" ? publicEnv.contracts.agentId : undefined,
-  mainnet: publicEnv.network === "mainnet" ? publicEnv.contracts.agentId : undefined,
+export const agentIdContractAddresses: Record<string, `0x${string}` | undefined> = {
+  galileo: publicEnv.contracts.agentId,
+  mainnet: publicEnv.contracts.agentId,
 } as const;
