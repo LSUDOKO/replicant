@@ -10,7 +10,18 @@ export const zeroGGalileo = defineChain({
   },
   rpcUrls: {
     default: {
-      http: ["https://evmrpc-testnet.0g.ai"],
+      http: [
+        "https://evmrpc-testnet.0g.ai",
+        "https://og-testnet-rpc.itrocket.net",
+        "https://evmrpc-testnet.0g.newton.so",
+      ],
+    },
+    public: {
+      http: [
+        "https://evmrpc-testnet.0g.ai",
+        "https://og-testnet-rpc.itrocket.net",
+        "https://evmrpc-testnet.0g.newton.so",
+      ],
     },
   },
   blockExplorers: {
@@ -40,7 +51,16 @@ export const zeroGMainnet = defineChain({
   },
   rpcUrls: {
     default: {
-      http: ["https://evmrpc.0g.ai"],
+      http: [
+        "https://evmrpc.0g.ai",
+        "https://evmrpc.0g.newton.so",
+      ],
+    },
+    public: {
+      http: [
+        "https://evmrpc.0g.ai",
+        "https://evmrpc.0g.newton.so",
+      ],
     },
   },
   blockExplorers: {

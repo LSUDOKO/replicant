@@ -5,23 +5,21 @@ import { useMemo } from "react";
 import { useTotalSupply, useAgents } from "@/lib/queries/agents";
 import { publicEnv } from "@/lib/env";
 import { SPECIES_INFO } from "@/lib/constants";
-import {
-  MOCK_AGENTS,
-  MOCK_STATS,
-  MOCK_ACTIVITY,
-  MOCK_EVOLUTION_EVENTS,
-} from "@/lib/mock-data";
 import type { Agent, StatCard, EvolutionEvent, ActivityEvent } from "@/types";
 
 const CONTRACT_CONFIGURED = !!publicEnv.contracts.agentId;
 
 function deriveStats(agents: Agent[]): StatCard[] {
   const active = agents.filter((a) => a.status === "active").length;
-  const totalEvolutions = agents.reduce((sum, a) => sum + a.evolutionCount, 0);
+  // Total evolutions is the number of agents that were created via evolution (have a parent)
+  const totalEvolutions = agents.filter((a) => a.parentId !== null).length;
+  
+  // Calculate real average fitness from all agents
   const avgFitness =
     agents.length > 0
-      ? (agents.reduce((sum, a) => sum + a.fitnessScore, 0) / agents.length).toFixed(1)
-      : "0";
+      ? Math.round(agents.reduce((sum, a) => sum + a.fitnessScore, 0) / agents.length)
+      : 0;
+  
   return [
     { label: "Active Agents", value: String(active), change: `${agents.length} total`, changeType: "positive" },
     { label: "Total Evolutions", value: String(totalEvolutions), change: "on-chain", changeType: "positive" },
@@ -31,21 +29,51 @@ function deriveStats(agents: Agent[]): StatCard[] {
 }
 
 function deriveEvolutions(agents: Agent[]): EvolutionEvent[] {
-  return agents
-    .filter((a) => a.parentId !== null)
-    .map((a, i) => ({
-      id: `evo-${i}`,
-      agentId: a.id,
-      agentName: a.name,
-      parentGeneration: a.generation - 1,
-      childGeneration: a.generation,
-      status: a.status === "slashed" ? "failed" : "completed" as const,
-      fitnessImprovement: a.fitnessScore,
-      mutationStrategy: "prompt_paraphrase" as const,
-      startedAt: a.createdAt,
-      completedAt: a.createdAt,
-      txHash: a.txHash,
-    }));
+  const evolutions: EvolutionEvent[] = [];
+
+  // 1. Add completed evolutions (agents that have a parent)
+  const evolvedAgents = agents.filter((a) => a.parentId !== null);
+  evolvedAgents.forEach((child) => {
+    const parent = agents.find(a => a.id === child.parentId);
+    const parentGeneration = parent ? parent.generation : child.generation - 1;
+    const fitnessImprovement = parent ? child.fitnessScore - parent.fitnessScore : child.fitnessScore;
+    
+    evolutions.push({
+      id: `evo-done-${child.id}`,
+      agentId: child.id,
+      agentName: child.name,
+      parentGeneration,
+      childGeneration: child.generation,
+      status: child.status === "slashed" ? "failed" : "completed",
+      fitnessImprovement,
+      mutationStrategy: "prompt_paraphrase",
+      startedAt: child.createdAt,
+      completedAt: child.createdAt,
+      txHash: child.txHash,
+    });
+  });
+
+  // 2. Add in-progress evolutions (agents with status 'evolving')
+  const mutatingAgents = agents.filter((a) => a.status === "evolving");
+  mutatingAgents.forEach((parent) => {
+    // Check if this parent already has a completed child evolution to avoid double counting
+    // (though 'evolving' status usually means it's currently mutating into a NEW child)
+    evolutions.push({
+      id: `evo-prog-${parent.id}`,
+      agentId: parent.id,
+      agentName: parent.name,
+      parentGeneration: parent.generation,
+      childGeneration: parent.generation + 1,
+      status: "mutating",
+      fitnessImprovement: 0,
+      mutationStrategy: "prompt_paraphrase",
+      startedAt: new Date().toISOString(),
+      txHash: parent.txHash,
+    });
+  });
+
+  // Sort by most recent
+  return evolutions.sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime());
 }
 
 function deriveActivity(agents: Agent[]): ActivityEvent[] {
@@ -97,28 +125,23 @@ export function useDashboardData() {
   const { agents: chainAgents, isLoading, error } = useAgents(totalSupply);
 
   const agents = useMemo<Agent[]>(() => {
-    if (!CONTRACT_CONFIGURED) return MOCK_AGENTS;
     if (isLoading) return [];
-    if (error || chainAgents.length === 0) return MOCK_AGENTS;
+    if (error) return [];
     return chainAgents;
   }, [chainAgents, isLoading, error]);
 
   const stats = useMemo<StatCard[]>(() => {
-    if (!CONTRACT_CONFIGURED || (isLoading && chainAgents.length === 0)) return MOCK_STATS;
+    if (isLoading) return [];
     return deriveStats(agents);
-  }, [agents, isLoading, chainAgents.length]);
-
-  const isMockData = !CONTRACT_CONFIGURED || (error !== null && chainAgents.length === 0);
+  }, [agents, isLoading]);
 
   const evolutions = useMemo<EvolutionEvent[]>(() => {
-    if (isMockData) return MOCK_EVOLUTION_EVENTS;
     return deriveEvolutions(agents);
-  }, [agents, chainAgents, isMockData]);
+  }, [agents]);
 
   const activity = useMemo<ActivityEvent[]>(() => {
-    if (isMockData) return MOCK_ACTIVITY;
     return deriveActivity(agents);
-  }, [agents, chainAgents, isMockData]);
+  }, [agents]);
 
   return {
     agents,
@@ -126,6 +149,7 @@ export function useDashboardData() {
     activity,
     evolutions,
     isLoading: CONTRACT_CONFIGURED && isLoading,
-    isMockData,
+    isMockData: false,
+    refetch: supplyResult.refetch,
   };
-}
+  }

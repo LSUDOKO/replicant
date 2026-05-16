@@ -1,22 +1,18 @@
 import type { Metadata } from "next";
-import { Exo_2, Geist_Mono, Orbitron } from "next/font/google";
+import { Roboto, Sniglet } from "next/font/google";
 import { AppProviders } from "@/app/providers";
 import "./globals.css";
 
-const orbitron = Orbitron({
-  variable: "--font-orbitron",
+const roboto = Roboto({
+  variable: "--font-roboto",
+  weight: ["300", "400", "500", "700", "900"],
   subsets: ["latin"],
   display: "swap",
 });
 
-const exo2 = Exo_2({
-  variable: "--font-exo-2",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const sniglet = Sniglet({
+  variable: "--font-sniglet",
+  weight: ["400", "800"],
   subsets: ["latin"],
   display: "swap",
 });
@@ -35,9 +31,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${orbitron.variable} ${exo2.variable} ${geistMono.variable} h-full antialiased dark`}
+      className={`${roboto.variable} ${sniglet.variable} h-full antialiased dark`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-[100dvh] flex flex-col selection:bg-primary selection:text-primary-foreground">
+        <div className="noise-overlay" />
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

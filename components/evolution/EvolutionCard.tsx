@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { BaseError, keccak256, toHex, type Address, type Hash, type Hex, parseEventLogs, encodeFunctionData } from "viem";
-import { useAccount, useWriteContract, useSendTransaction, usePublicClient, useReadContract } from "wagmi";
-import { FlaskConical, Loader2, ShieldCheck, CheckCircle2, XCircle, AlertTriangle, ExternalLink } from "lucide-react";
+import { BaseError, keccak256, toHex, type Address, type Hash, parseEventLogs } from "viem";
+import { useAccount, useWriteContract, usePublicClient, useReadContract } from "wagmi";
+import { FlaskConical, Loader2, ShieldCheck, CheckCircle2, XCircle } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -25,7 +25,7 @@ import { useDashboardData } from "@/lib/queries/use-dashboard-data";
 import { useReplicantStore } from "@/lib/store";
 import { SPECIES_INFO } from "@/lib/constants";
 
-export type Stage = "idle" | "requesting" | "requested" | "computing" | "aligning" | "minting" | "done" | "failed";
+export type Stage = "idle" | "requesting" | "requested" | "computing" | "done" | "failed";
 
 const COORDINATOR_ADDRESS = evolutionCoordinatorContractAddresses[publicEnv.network] as Address | undefined;
 
@@ -33,58 +33,38 @@ const STAGE_LABELS: Record<Stage, string> = {
   idle:       "Ready",
   requesting: "Submitting",
   requested:  "Queued",
-  computing:  "TEE Computing",
-  aligning:   "Alignment Scan",
-  minting:    "Minting",
+  computing:  "Evolving",
   done:       "Complete",
   failed:     "Failed",
 };
 
 const STAGE_PROGRESS: Record<Stage, number> = {
-  idle: 0, requesting: 15, requested: 25,
-  computing: 55, aligning: 75, minting: 90, done: 100, failed: 0,
+  idle: 0, requesting: 15, requested: 30,
+  computing: 70, done: 100, failed: 0,
 };
 
-export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage) => void }) {
+export function EvolutionCard({
+  onStageChange,
+  onTxHash,
+  onCompleteTxHash,
+  onChildGenomeHash,
+  onStorageRootHash,
+  onTeeAttestationHash,
+  onAlignmentVerdictHash,
+}: {
+  onStageChange?: (stage: Stage) => void;
+  onTxHash?: (hash: string) => void;
+  onCompleteTxHash?: (hash: string) => void;
+  onChildGenomeHash?: (hash: string) => void;
+  onStorageRootHash?: (hash: string) => void;
+  onTeeAttestationHash?: (hash: string) => void;
+  onAlignmentVerdictHash?: (hash: string) => void;
+}) {
   const publicClient = usePublicClient();
   const { isConnected, address } = useAccount();
   const { agents, refetch } = useDashboardData();
   const activeAgentId = useReplicantStore((s) => s.activeAgentId);
   const setActiveAgent = useReplicantStore((s) => s.setActiveAgent);
-
-  const { data: evolutionExecutor } = useReadContract({
-    address: publicEnv.contracts.agentId,
-    abi: [
-      {
-        type: "function",
-        name: "evolutionExecutor",
-        stateMutability: "view",
-        inputs: [],
-        outputs: [{ type: "address" }],
-      },
-    ],
-    functionName: "evolutionExecutor",
-    query: { enabled: !!publicEnv.contracts.agentId },
-  });
-
-  const isWired = evolutionExecutor?.toString().toLowerCase() === COORDINATOR_ADDRESS?.toLowerCase();
-
-  const { data: coordinatorTeeExecutor } = useReadContract({
-    address: COORDINATOR_ADDRESS,
-    abi: [
-      {
-        type: "function",
-        name: "teeExecutor",
-        stateMutability: "view",
-        inputs: [],
-        outputs: [{ type: "address" }],
-      },
-    ],
-    functionName: "teeExecutor",
-    query: { enabled: !!COORDINATOR_ADDRESS },
-  });
-
-  const isTeeExecutor = coordinatorTeeExecutor?.toString().toLowerCase() === address?.toLowerCase();
 
   const [stage, setStageInternal] = useState<Stage>("idle");
   const setStage = (s: Stage) => {
@@ -93,6 +73,7 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
   };
   const [error, setError] = useState<string | null>(null);
   const [childId, setChildId] = useState<bigint | null>(null);
+  const [txHash, setTxHash] = useState<Hash | null>(null);
   const [evolutionData, setEvolutionData] = useState<{
     childGenomeHash?: string;
     storageRootHash?: string;
@@ -101,30 +82,17 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
     fitnessImprovement?: number;
   }>({});
 
-  const [pendingCompleteData, setPendingCompleteData] = useState<{
-    requestId: number;
-    childGenomeHash: string;
-    storageRootHash: string;
-    teeAttestationHash: string;
-    alignmentVerdictHash: string;
-    fitnessScore: number;
-  } | null>(null);
-
    const userAgents = agents.filter((a) => a.owner.toLowerCase() === address?.toLowerCase());
-   // Priority: Active > Evolving > Slashed > Archived
    const sortedUserAgents = [...userAgents].sort((a, b) => {
      const order: Record<string, number> = { active: 0, evolving: 1, slashed: 2, archived: 3 };
      return (order[a.status] ?? 4) - (order[b.status] ?? 4);
    });
-   
+
    const evolvableAgents = userAgents.filter((a) => a.status === "active" || a.status === "evolving");
    const activeAgent = userAgents.find((a) => a.id === activeAgentId) ?? evolvableAgents[0] ?? userAgents[0];
 
-   // Separate write contracts for each transaction to avoid wallet popup conflicts
    const { data: reqHash, isPending: reqPending, writeContractAsync: writeRequestEvolution, reset: resetReq } = useWriteContract();
-   const { data: completeHashState, isPending: completePending, sendTransactionAsync: sendCompleteEvolution, reset: resetComplete } = useSendTransaction();
 
-   // Pre-flight check: Verify user owns the active agent on-chain
    const { data: agentOwner } = useReadContract({
      address: publicEnv.contracts.agentId,
      abi: [
@@ -141,7 +109,6 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
      query: { enabled: !!activeAgent?.id && !!publicEnv.contracts.agentId },
    });
 
-   // canEvolve requires: active status, wallet connected, coordinator available, and on-chain ownership verified
    const ownershipVerified = agentOwner?.toLowerCase() === address?.toLowerCase();
    const canEvolve = activeAgent?.status === "active" && isConnected && !!COORDINATOR_ADDRESS && (agentOwner === undefined || ownershipVerified);
 
@@ -154,135 +121,51 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
      setError(null);
      setStage("requesting");
      resetReq();
-     resetComplete();
 
       try {
-       // First check: UI-level ownership (from dashboard data)
        if (activeAgent.owner.toLowerCase() !== address?.toLowerCase()) {
-         throw new Error("You do not own this agent (UI check). Ownership is required for evolution.");
+         throw new Error("You do not own this agent.");
        }
 
-       // Second check: On-chain ownership verification (if available)
        if (agentOwner && agentOwner.toLowerCase() !== address?.toLowerCase()) {
-         throw new Error(
-           `On-chain ownership mismatch. You: ${address}, Owner: ${agentOwner}. The agent was possibly transferred.`
-         );
+         throw new Error("On-chain ownership mismatch.");
        }
 
-      // Ensure we have a valid 32-byte hash.
-      const rawTxHash = activeAgent.txHash as Hash;
-      const parentGenomeHash = (rawTxHash && rawTxHash.length === 66)
-        ? rawTxHash
-        : keccak256(toHex(`genesis-genome-${activeAgent.species}-v1`));
+       const rawTxHash = activeAgent.txHash as Hash;
+       const parentGenomeHash = (rawTxHash && rawTxHash.length === 66)
+         ? rawTxHash
+         : keccak256(toHex(`genesis-genome-${activeAgent.species}-v1`));
 
-      // eslint-disable-next-line react-hooks/purity
-      const timestamp = Date.now();
-      const performanceHistoryHash = keccak256(
-        toHex(`perf-history-${activeAgent.id}-${timestamp}`)
-      );
+       const timestamp = Date.now();
+       const performanceHistoryHash = keccak256(
+         toHex(`perf-history-${activeAgent.id}-${timestamp}`)
+       );
 
-      // Check if coordinator is authorized - if not, use simulation mode
-      if (!isWired) {
-        // SIMULATION MODE: Skip on-chain transaction, go straight to TEE computation
-        setStage("computing");
-        await delay(1000);
-
-        const evolveRes = await fetch("/api/compute/evolve", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            requestId: Math.floor(Math.random() * 1000000),
-            parentId: activeAgent.id,
-            parentGenomeHash,
-            performanceHistoryHash,
-          }),
-        });
-        const evolveData = await evolveRes.json();
-        if (!evolveRes.ok) throw new Error(evolveData.error ?? "Evolution failed");
-
-        setEvolutionData({
-          childGenomeHash: evolveData.childGenomeHash,
-          storageRootHash: evolveData.storageRootHash,
-          teeAttestationHash: evolveData.teeAttestationHash,
-          fitnessImprovement: evolveData.fitnessImprovement,
-        });
-
-        setStage("aligning");
-        await delay(800);
-
-        const alignRes = await fetch("/api/alignment/scan", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ agentId: activeAgent.id, genomeHash: evolveData.childGenomeHash }),
-        });
-        const alignData = await alignRes.json();
-        if (!alignRes.ok) throw new Error(alignData.error ?? "Alignment scan failed");
-
-        if (!alignData.passed) {
-          throw new Error("Alignment scan failed - agent rejected for safety violations");
-        }
-
-        setEvolutionData(prev => ({
-          ...prev,
-          alignmentVerdictHash: alignData.alignmentVerdictHash,
-        }));
-
-        setStage("minting");
-        await delay(500);
-
-        // Store evolution event in localStorage for persistence
-        const evolutionEvent = {
-          id: `evo-sim-${Date.now()}`,
-          agentId: activeAgent.id,
-          agentName: activeAgent.name,
-          parentGeneration: activeAgent.generation,
-          childGeneration: activeAgent.generation + 1,
-          status: "completed",
-          fitnessImprovement: evolveData.fitnessImprovement,
-          mutationStrategy: "prompt_paraphrase",
-          startedAt: new Date().toISOString(),
-          completedAt: new Date().toISOString(),
-          txHash: evolveData.childGenomeHash, // Use genome hash as tx identifier
-          childGenomeHash: evolveData.childGenomeHash,
-          storageRootHash: evolveData.storageRootHash,
-          teeAttestationHash: evolveData.teeAttestationHash,
-          alignmentVerdictHash: alignData.alignmentVerdictHash,
-        };
-        
-        // Store in localStorage
-        const existingEvolutions = JSON.parse(localStorage.getItem("replicant-evolutions") || "[]");
-        existingEvolutions.unshift(evolutionEvent);
-        localStorage.setItem("replicant-evolutions", JSON.stringify(existingEvolutions));
-
-        setChildId(BigInt(activeAgent.id));
-        setStage("done");
-        refetch();
-        return;
-      }
-
-       // PRODUCTION MODE: Full on-chain transaction flow
        let hash: Hash;
        try {
          hash = await writeRequestEvolution({
            address: COORDINATOR_ADDRESS,
            abi: replicantEvolutionCoordinatorAbi,
            functionName: "requestEvolution",
-           args: [BigInt(activeAgent.id), parentGenomeHash, performanceHistoryHash],
+           args: [BigInt(activeAgent.id), parentGenomeHash as Hash, performanceHistoryHash as Hash],
          });
-
          setStage("requested");
        } catch (writeErr) {
          console.error("requestEvolution write error:", writeErr);
-         // Provide more detailed error info
          if (writeErr instanceof Error) {
            throw new Error(`Contract call failed: ${writeErr.message}`);
          }
          throw writeErr;
        }
 
-       // Wait for confirmation to get requestId
        if (!publicClient) throw new Error("Public client not available");
-       const receipt = await publicClient.waitForTransactionReceipt({ hash });
+       onTxHash?.(hash);
+
+      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+       if (receipt.status === "reverted") {
+         throw new Error("Request evolution transaction reverted on-chain.");
+       }
+
       const logs = parseEventLogs({
         abi: replicantEvolutionCoordinatorAbi,
         eventName: "EvolutionRequested",
@@ -292,8 +175,8 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
       const requestId = logs[0]?.args?.requestId;
       if (!requestId) throw new Error("Could not find requestId in transaction logs");
 
-      // Trigger TEE Evolution (Simulated API)
       setStage("computing");
+
       const evolveRes = await fetch("/api/compute/evolve", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -302,6 +185,8 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
           parentId: activeAgent.id,
           parentGenomeHash,
           performanceHistoryHash,
+          species: activeAgent.species,
+          generation: activeAgent.generation,
         }),
       });
       const evolveData = await evolveRes.json();
@@ -311,44 +196,24 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
         childGenomeHash: evolveData.childGenomeHash,
         storageRootHash: evolveData.storageRootHash,
         teeAttestationHash: evolveData.teeAttestationHash,
+        alignmentVerdictHash: evolveData.alignmentVerdictHash,
         fitnessImprovement: evolveData.fitnessImprovement,
       });
+      onChildGenomeHash?.(evolveData.childGenomeHash);
+      onStorageRootHash?.(evolveData.storageRootHash);
+      onTeeAttestationHash?.(evolveData.teeAttestationHash);
+      onAlignmentVerdictHash?.(evolveData.alignmentVerdictHash);
 
-      setStage("aligning");
-      await delay(800);
-
-      const alignRes = await fetch("/api/alignment/scan", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ agentId: activeAgent.id, genomeHash: evolveData.childGenomeHash }),
-      });
-      const alignData = await alignRes.json();
-      if (!alignRes.ok) throw new Error(alignData.error ?? "Alignment scan failed");
-
-      if (!alignData.passed) {
-        throw new Error("Alignment scan failed - agent rejected for safety violations");
+      if (evolveData.childId) {
+        setChildId(BigInt(evolveData.childId));
+      }
+      if (evolveData.completeTxHash) {
+        setTxHash(evolveData.completeTxHash as Hash);
+        onCompleteTxHash?.(evolveData.completeTxHash);
       }
 
-      setEvolutionData(prev => ({
-        ...prev,
-        alignmentVerdictHash: alignData.alignmentVerdictHash,
-      }));
-
-       setStage("minting");
-       await delay(500);
-
-       // completion must be submitted by the authorized TEE executor
-       // store request data so the Complete button can use it
-       setPendingCompleteData({
-         requestId: Number(requestId),
-         childGenomeHash: evolveData.childGenomeHash,
-         storageRootHash: evolveData.storageRootHash,
-         teeAttestationHash: evolveData.teeAttestationHash,
-         alignmentVerdictHash: alignData.alignmentVerdictHash,
-         fitnessScore: Math.floor(activeAgent.fitnessScore + evolveData.fitnessImprovement),
-       });
-        setStage("minting");
-        return;
+      setStage("done");
+      refetch();
 
      } catch (err) {
        console.error("Evolution failed:", err);
@@ -357,85 +222,19 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
      }
    }
 
-    async function handleCompleteEvolution() {
-      if (!pendingCompleteData || !COORDINATOR_ADDRESS) return;
-      try {
-        const data = encodeFunctionData({
-          abi: replicantEvolutionCoordinatorAbi,
-          functionName: "completeEvolution",
-          args: [
-            BigInt(pendingCompleteData.requestId),
-            pendingCompleteData.childGenomeHash as `0x${string}`,
-            pendingCompleteData.storageRootHash as `0x${string}`,
-            pendingCompleteData.teeAttestationHash as `0x${string}`,
-            pendingCompleteData.alignmentVerdictHash as `0x${string}`,
-            BigInt(pendingCompleteData.fitnessScore),
-            [],
-          ],
-        });
-        const completeHash = await sendCompleteEvolution({
-          to: COORDINATOR_ADDRESS,
-          data: data as Hex,
-        });
-
-       if (!publicClient) throw new Error("Public client not available");
-       const completeReceipt = await publicClient.waitForTransactionReceipt({ hash: completeHash });
-       const completeLogs = parseEventLogs({
-         abi: replicantEvolutionCoordinatorAbi,
-         eventName: "EvolutionCompleted",
-         logs: completeReceipt.logs,
-       });
-
-       const childId = completeLogs[0]?.args?.childId;
-       if (!childId) throw new Error("Could not find childId in EvolutionCompleted event");
-
-       const evolutionEvent = {
-         id: `evo-chain-${pendingCompleteData.requestId}`,
-         agentId: activeAgent?.id ?? 0,
-         agentName: activeAgent?.name ?? "",
-         parentGeneration: activeAgent?.generation ?? 0,
-         childGeneration: (activeAgent?.generation ?? 0) + 1,
-         status: "completed",
-         fitnessImprovement: evolutionData.fitnessImprovement ?? 0,
-         mutationStrategy: "prompt_paraphrase",
-         startedAt: new Date().toISOString(),
-         completedAt: new Date().toISOString(),
-         txHash: completeHash,
-         childGenomeHash: pendingCompleteData.childGenomeHash,
-         storageRootHash: pendingCompleteData.storageRootHash,
-         teeAttestationHash: pendingCompleteData.teeAttestationHash,
-         alignmentVerdictHash: pendingCompleteData.alignmentVerdictHash,
-       };
-       const existingEvolutions = JSON.parse(localStorage.getItem("replicant-evolutions") || "[]");
-       existingEvolutions.unshift(evolutionEvent);
-       localStorage.setItem("replicant-evolutions", JSON.stringify(existingEvolutions));
-
-       setChildId(childId);
-       setStage("done");
-       setPendingCompleteData(null);
-       refetch();
-     } catch (err) {
-       console.error("completeEvolution failed:", err);
-       setError(err instanceof BaseError ? err.shortMessage : err instanceof Error ? err.message : "completeEvolution failed");
-       setStage("failed");
-     }
-   }
-
    function reset() {
      setStage("idle");
      setError(null);
      setChildId(null);
+     setTxHash(null);
      setEvolutionData({});
-     setPendingCompleteData(null);
      resetReq();
-     resetComplete();
    }
 
    const txStatus =
      reqPending ? "signing"
-     : completePending ? "signing"
      : stage === "requested" ? "pending"
-     : stage === "minting" ? "pending"
+     : stage === "computing" ? "pending"
      : stage === "done" ? "confirmed"
      : stage === "failed" ? "failed"
      : null;
@@ -554,11 +353,11 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
         {/* Stage indicators */}
         <div className="grid grid-cols-3 gap-3">
           {[
-            { key: "computing", label: "Mutation",  icon: FlaskConical },
-            { key: "aligning",  label: "Alignment", icon: ShieldCheck },
-            { key: "done",      label: "Clone",     icon: CheckCircle2 },
+            { key: "requested", label: "Request",  icon: FlaskConical },
+            { key: "computing",  label: "Evolution", icon: Loader2 },
+            { key: "done",      label: "Minted",    icon: CheckCircle2 },
           ].map(({ key, label, icon: Icon }) => {
-            const stageOrder: Stage[] = ["computing", "aligning", "done"];
+            const stageOrder: Stage[] = ["requested", "computing", "done"];
             const currentIdx = stageOrder.indexOf(stage as Stage);
             const thisIdx = stageOrder.indexOf(key as Stage);
             const isDone = currentIdx > thisIdx || stage === "done";
@@ -629,7 +428,7 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
          {txStatus && (
            <TxStatusCard
              status={txStatus}
-             hash={stage === "minting" ? completeHashState : reqHash}
+             hash={txHash ?? reqHash}
              error={error ?? undefined}
              label={STAGE_LABELS[stage]}
            />
@@ -639,34 +438,13 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
          {childId && stage === "done" && (
            <div className="flex items-center gap-2 rounded-xl border border-violet-500/20 bg-violet-500/5 p-3 text-sm text-violet-400">
              <CheckCircle2 size={16} />
-             {isWired 
-               ? `Evolution Successful! Child Agent #${childId.toString()} minted`
-               : `Evolution Simulated! Data generated for Agent #${childId.toString()}`
-             }
-           </div>
-         )}
-
-         {/* Wiring Warning */}
-         {!isWired && COORDINATOR_ADDRESS && isConnected && (
-           <div className="flex flex-col gap-2 rounded-xl border border-violet-500/20 bg-violet-500/5 p-3 text-xs text-white">
-             <div className="flex items-center gap-2 font-bold text-violet-400">
-               <AlertTriangle size={14} />
-               SIMULATION MODE
-             </div>
-             <p className="text-white/80">
-               Evolution Coordinator not authorized on Agent NFT contract. Running in simulation mode - evolution data will be generated but not minted on-chain.
-             </p>
-             <div className="mt-1 rounded bg-black/20 p-2 font-mono break-all text-white/60 text-[10px]">
-               Expected: {COORDINATOR_ADDRESS.slice(0, 10)}...{COORDINATOR_ADDRESS.slice(-8)}
-               <br />
-               Actual: {evolutionExecutor ? `${evolutionExecutor.toString().slice(0, 10)}...${evolutionExecutor.toString().slice(-8)}` : "None"}
-             </div>
+             Evolution Successful! Child Agent #{childId.toString()} minted
            </div>
          )}
 
          {/* Request tx link */}
-         {(reqHash || completeHashState) && stage !== "idle" && (
-           <ExplorerLinkWrapper value={stage === "minting" ? completeHashState : reqHash} type="tx" className="text-xs" />
+         {reqHash && stage !== "idle" && (
+           <ExplorerLinkWrapper value={reqHash} type="tx" className="text-xs" />
         )}
 
         {/* CTA */}
@@ -691,20 +469,6 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
              Reset Chamber
            </ActionButton>
           )}
-          {stage === "minting" && pendingCompleteData && (
-           <ActionButton
-             className="w-full py-6 bg-violet-500 hover:bg-violet-600 text-white border-0"
-             onClick={handleCompleteEvolution}
-             disabled={completePending}
-             title={!COORDINATOR_ADDRESS ? "Evolution Coordinator not configured" : undefined}
-           >
-             {completePending ? (
-               <><Loader2 size={16} className="mr-2 animate-spin" /> Signing...</>
-             ) : (
-               "Complete Evolution (Mint Child)"
-             )}
-           </ActionButton>
-          )}
 
         {!COORDINATOR_ADDRESS && (
           <p className="text-center text-xs text-white/60">
@@ -715,8 +479,3 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
     </Card>
   );
 }
-
-function delay(ms: number) {
-  return new Promise<void>((resolve) => setTimeout(resolve, ms));
-}
-

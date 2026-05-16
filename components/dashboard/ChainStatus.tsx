@@ -16,7 +16,7 @@ export function ChainStatus() {
       </span>
       <span className="inline-flex items-center gap-1.5 font-mono">
         <Activity size={13} className="text-accent-evolution" />
-        {zeroGChain.latestBlock.toLocaleString()}
+        {zeroGChain.latestBlock.toString()}
       </span>
       <span className="inline-flex items-center gap-1.5 font-mono">
         <Gauge size={13} className="text-accent-success" />

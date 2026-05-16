@@ -1,7 +1,8 @@
-import { Navbar } from "@/components/landing/Navbar";
+import { Header } from "@/components/ui/header-2";
 import { Hero } from "@/components/landing/Hero";
 import { ProblemSection } from "@/components/landing/ProblemSection";
-import { HowItWorks } from "@/components/landing/HowItWorks";
+import { ProtocolWorkflow } from "@/components/landing/ProtocolWorkflow";
+import { INFTSection } from "@/components/landing/INFTSection";
 import { SpeciesGrid } from "@/components/landing/SpeciesGrid";
 import { IntegrationMap } from "@/components/landing/IntegrationMap";
 import { Footer } from "@/components/landing/Footer";
@@ -9,12 +10,13 @@ import { Footer } from "@/components/landing/Footer";
 export default function Home() {
   return (
     <>
-      <Navbar />
+      <Header />
       <main>
         <Hero />
         <ProblemSection />
-        <HowItWorks />
+        <ProtocolWorkflow />
         <SpeciesGrid />
+        <INFTSection />
         <IntegrationMap />
       </main>
       <Footer />

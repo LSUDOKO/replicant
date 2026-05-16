@@ -11,7 +11,7 @@ function ActionButton({
   return (
     <Button
       className={cn(
-        "rounded-full bg-accent-success px-6 text-background shadow-[0_0_24px_rgba(34,197,94,0.16)] transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:scale-[1.02] hover:bg-accent-success/95 hover:shadow-[0_0_34px_rgba(34,197,94,0.22)] active:scale-[0.98]",
+        "h-[58px] rounded-[18px] bg-gradient-to-b from-[#9F67FF] to-[#7C3AED] text-white text-[15px] font-semibold tracking-[0.3px] shadow-[0_10px_40px_rgba(139,92,246,0.35)] transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-[2px] hover:shadow-[0_20px_50px_rgba(139,92,246,0.45)] active:translate-y-0",
         className
       )}
       {...props}

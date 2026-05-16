@@ -372,6 +372,10 @@ contract AgentNFT is
         emit BaseURIUpdated(oldBaseURI, newBaseURI);
     }
 
+    function getBaseURI() public view returns (string memory) {
+        return _getAgentStorage().baseURI;
+    }
+
     function setTokenURI(uint256 tokenId, string memory newURI) external {
         require(_ownerOf(tokenId) == msg.sender, "Not owner");
         _getAgentStorage().customURIs[tokenId] = newURI;

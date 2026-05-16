@@ -50,7 +50,7 @@ contract ReplicantAgentNFTTest {
         agentNft = ReplicantAgentNFT(address(proxy));
         coordinator = new ReplicantEvolutionCoordinator(address(agentNft));
         marketplace = new ReplicantMarketplace(address(agentNft), address(this));
-        subscriptions = new ReplicantSubscriptionEscrow();
+        subscriptions = new ReplicantSubscriptionEscrow(address(agentNft));
         buyer = new MarketplaceBuyer();
         agentNft.setEvolutionExecutor(address(coordinator));
         agentNft.setAlignmentNode(address(coordinator));

@@ -10,7 +10,7 @@ function GlassCard({
     <div
       data-slot="glass-card"
       className={cn(
-        "glass-refraction rounded-2xl bg-surface/70 text-card-foreground backdrop-blur-xl",
+        "glass-refraction rounded-2xl text-card-foreground backdrop-blur-xl",
         className
       )}
       {...props}

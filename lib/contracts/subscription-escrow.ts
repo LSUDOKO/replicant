@@ -31,6 +31,41 @@ export const replicantSubscriptionEscrowAbi = [
     outputs: [{ name: "hasAccess", type: "bool" }],
   },
   {
+    type: "function",
+    name: "getActiveSubscription",
+    stateMutability: "view",
+    inputs: [
+      { name: "agentId", type: "uint256" },
+      { name: "subscriber", type: "address" },
+    ],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "isSubscriptionActive",
+    stateMutability: "view",
+    inputs: [
+      { name: "agentId", type: "uint256" },
+      { name: "subscriber", type: "address" },
+    ],
+    outputs: [{ name: "", type: "bool" }],
+  },
+  {
+    type: "function",
+    name: "subscriptions",
+    stateMutability: "view",
+    inputs: [{ name: "subscriptionId", type: "uint256" }],
+    outputs: [
+      { name: "subscriber", type: "address" },
+      { name: "receiver", type: "address" },
+      { name: "agentId", type: "uint256" },
+      { name: "tierId", type: "uint256" },
+      { name: "prepaidUntil", type: "uint256" },
+      { name: "amountPaid", type: "uint256" },
+      { name: "active", type: "bool" },
+    ],
+  },
+  {
     type: "event",
     name: "SubscriptionStarted",
     inputs: [
@@ -43,15 +78,49 @@ export const replicantSubscriptionEscrowAbi = [
       { name: "amountPaid", type: "uint256", indexed: false },
     ],
   },
+  {
+    type: "event",
+    name: "SubscriptionCancelled",
+    inputs: [
+      { name: "subscriptionId", type: "uint256", indexed: true },
+    ],
+  },
+  {
+    type: "event",
+    name: "SubscriptionRefunded",
+    inputs: [
+      { name: "subscriptionId", type: "uint256", indexed: true },
+      { name: "refundAmount", type: "uint256", indexed: false },
+    ],
+  },
+  {
+    type: "error",
+    name: "NotSubscriber",
+    inputs: [],
+  },
+  {
+    type: "error",
+    name: "InvalidPayment",
+    inputs: [],
+  },
+  {
+    type: "error",
+    name: "InvalidDuration",
+    inputs: [],
+  },
+  {
+    type: "error",
+    name: "InvalidSubscription",
+    inputs: [],
+  },
+  {
+    type: "error",
+    name: "AgentNotFound",
+    inputs: [],
+  },
 ] as const;
 
-export const subscriptionEscrowContractAddresses = {
-  galileo:
-    publicEnv.network === "galileo"
-      ? publicEnv.contracts.subscriptionEscrow
-      : undefined,
-  mainnet:
-    publicEnv.network === "mainnet"
-      ? publicEnv.contracts.subscriptionEscrow
-      : undefined,
+export const subscriptionEscrowContractAddresses: Record<string, `0x${string}` | undefined> = {
+  galileo: publicEnv.contracts.subscriptionEscrow,
+  mainnet: publicEnv.contracts.subscriptionEscrow,
 } as const;

@@ -136,7 +136,7 @@ export const replicantMarketplaceAbi = [
   },
 ] as const;
 
-export const marketplaceContractAddresses = {
-  galileo: publicEnv.network === "galileo" ? publicEnv.contracts.marketplace : undefined,
-  mainnet: publicEnv.network === "mainnet" ? publicEnv.contracts.marketplace : undefined,
+export const marketplaceContractAddresses: Record<string, `0x${string}` | undefined> = {
+  galileo: publicEnv.contracts.marketplace,
+  mainnet: publicEnv.contracts.marketplace,
 } as const;

@@ -24,15 +24,7 @@ const STATUS_MAP: AgentStatus[] = ["active", "archived", "slashed", "evolving"];
 export function useTotalSupply() {
   return useReadContract({
     address: CONTRACT_ADDRESS,
-    abi: [
-      {
-        type: "function",
-        name: "totalSupply",
-        stateMutability: "view",
-        inputs: [],
-        outputs: [{ name: "", type: "uint256" }],
-      },
-    ] as const,
+    abi: erc7857AgentIdAbi,
     functionName: "totalSupply",
     query: { enabled: !!CONTRACT_ADDRESS },
   });
@@ -184,6 +176,7 @@ export function useAgents(totalSupply: number) {
           txHash: storageRootHash,
         } satisfies Agent,
       ];
+
     });
   }, [metadataResults.data, ownerResults.data, ids]);
 

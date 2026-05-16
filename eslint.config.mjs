@@ -16,6 +16,9 @@ const eslintConfig = defineConfig([
     "0g-agent-nft/**",
     "out/**",
     "cache_forge/**",
+    "lib/openzeppelin-contracts/**",
+    ".0g-skills/**",
+    "0g-agent-nft/**",
   ]),
 ]);
 

@@ -11,14 +11,14 @@ const explorerBaseUrls: Record<ExplorerNetwork, Record<ExplorerTarget, string>> 
     address: "https://chainscan-galileo.0g.ai/address",
     block: "https://chainscan-galileo.0g.ai/block",
     attestation: "https://chainscan-galileo.0g.ai/tx",
-    storage: "https://storagescan-galileo.0g.ai/file",
+    storage: "https://chainscan-galileo.0g.ai/search?q=",
   },
   mainnet: {
     tx: "https://chainscan.0g.ai/tx",
     address: "https://chainscan.0g.ai/address",
     block: "https://chainscan.0g.ai/block",
     attestation: "https://chainscan.0g.ai/tx",
-    storage: "https://storagescan.0g.ai/file",
+    storage: "https://chainscan.0g.ai/search?q=",
   },
 };
 
@@ -49,9 +49,14 @@ export function ExplorerLink({
   const explorerValue = value ?? hash;
   if (!explorerValue) return null;
 
+  const base = explorerBaseUrls[network][type];
+  const href = type === "storage"
+    ? `${base}${explorerValue}`
+    : `${base}/${explorerValue}`;
+
   return (
     <a
-      href={`${explorerBaseUrls[network][type]}/${explorerValue}`}
+      href={href}
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
