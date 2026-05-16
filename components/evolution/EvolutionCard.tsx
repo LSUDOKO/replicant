@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { BaseError, keccak256, toHex, type Address, type Hash, parseEventLogs } from "viem";
-import { useAccount, useWriteContract, usePublicClient, useReadContract } from "wagmi";
+import { BaseError, keccak256, toHex, type Address, type Hash, type Hex, parseEventLogs, encodeFunctionData } from "viem";
+import { useAccount, useWriteContract, useSendTransaction, usePublicClient, useReadContract } from "wagmi";
 import { FlaskConical, Loader2, ShieldCheck, CheckCircle2, XCircle, AlertTriangle, ExternalLink } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -122,7 +122,7 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
 
    // Separate write contracts for each transaction to avoid wallet popup conflicts
    const { data: reqHash, isPending: reqPending, writeContractAsync: writeRequestEvolution, reset: resetReq } = useWriteContract();
-   const { data: completeHashState, isPending: completePending, writeContractAsync: writeCompleteEvolution, reset: resetComplete } = useWriteContract();
+   const { data: completeHashState, isPending: completePending, sendTransactionAsync: sendCompleteEvolution, reset: resetComplete } = useSendTransaction();
 
    // Pre-flight check: Verify user owns the active agent on-chain
    const { data: agentOwner } = useReadContract({
@@ -357,23 +357,26 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
      }
    }
 
-   async function handleCompleteEvolution() {
-     if (!pendingCompleteData || !COORDINATOR_ADDRESS) return;
-     try {
-       const completeHash = await writeCompleteEvolution({
-         address: COORDINATOR_ADDRESS,
-         abi: replicantEvolutionCoordinatorAbi,
-         functionName: "completeEvolution",
-         args: [
-           BigInt(pendingCompleteData.requestId),
-           pendingCompleteData.childGenomeHash as `0x${string}`,
-           pendingCompleteData.storageRootHash as `0x${string}`,
-           pendingCompleteData.teeAttestationHash as `0x${string}`,
-           pendingCompleteData.alignmentVerdictHash as `0x${string}`,
-           BigInt(pendingCompleteData.fitnessScore),
-           [],
-         ],
-       });
+    async function handleCompleteEvolution() {
+      if (!pendingCompleteData || !COORDINATOR_ADDRESS) return;
+      try {
+        const data = encodeFunctionData({
+          abi: replicantEvolutionCoordinatorAbi,
+          functionName: "completeEvolution",
+          args: [
+            BigInt(pendingCompleteData.requestId),
+            pendingCompleteData.childGenomeHash as `0x${string}`,
+            pendingCompleteData.storageRootHash as `0x${string}`,
+            pendingCompleteData.teeAttestationHash as `0x${string}`,
+            pendingCompleteData.alignmentVerdictHash as `0x${string}`,
+            BigInt(pendingCompleteData.fitnessScore),
+            [],
+          ],
+        });
+        const completeHash = await sendCompleteEvolution({
+          to: COORDINATOR_ADDRESS,
+          data: data as Hex,
+        });
 
        if (!publicClient) throw new Error("Public client not available");
        const completeReceipt = await publicClient.waitForTransactionReceipt({ hash: completeHash });
