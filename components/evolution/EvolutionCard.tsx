@@ -101,6 +101,15 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
     fitnessImprovement?: number;
   }>({});
 
+  const [pendingCompleteData, setPendingCompleteData] = useState<{
+    requestId: number;
+    childGenomeHash: string;
+    storageRootHash: string;
+    teeAttestationHash: string;
+    alignmentVerdictHash: string;
+    fitnessScore: number;
+  } | null>(null);
+
    const userAgents = agents.filter((a) => a.owner.toLowerCase() === address?.toLowerCase());
    // Priority: Active > Evolving > Slashed > Archived
    const sortedUserAgents = [...userAgents].sort((a, b) => {
@@ -325,110 +334,96 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
         alignmentVerdictHash: alignData.alignmentVerdictHash,
       }));
 
-      setStage("minting");
-      await delay(500);
+       setStage("minting");
+       await delay(500);
 
        // completion must be submitted by the authorized TEE executor
-       if (!isTeeExecutor) {
-         setStage("minting");
-         setError("Awaiting TEE executor to call completeEvolution on-chain...");
+       // store request data so the Complete button can use it
+       setPendingCompleteData({
+         requestId: Number(requestId),
+         childGenomeHash: evolveData.childGenomeHash,
+         storageRootHash: evolveData.storageRootHash,
+         teeAttestationHash: evolveData.teeAttestationHash,
+         alignmentVerdictHash: alignData.alignmentVerdictHash,
+         fitnessScore: Math.floor(activeAgent.fitnessScore + evolveData.fitnessImprovement),
+       });
+        setStage("minting");
+        return;
 
-         const pollTimeout = 120_000;
-         const pollInterval = 3_000;
-         const start = Date.now();
-         let completed = false;
-         while (Date.now() - start < pollTimeout) {
-           try {
-             const req = await publicClient.readContract({
-               address: COORDINATOR_ADDRESS,
-               abi: replicantEvolutionCoordinatorAbi,
-               functionName: "requests",
-               args: [BigInt(requestId)],
-             });
-             const reqArr = req as unknown as unknown[];
-             const status = Number(reqArr[2] ?? 0);
-             const childIdFromChain = reqArr[6] as bigint;
-             if (status === 1 && childIdFromChain && childIdFromChain > 0n) {
-               setChildId(childIdFromChain);
-               setStage("done");
-               setError(null);
-               refetch();
-               completed = true;
-               break;
-             }
-           } catch { /* retry */ }
-           await delay(pollInterval);
-         }
-         if (!completed) {
-           setError("Timed out waiting for TEE completion. Ask the TEE operator to run completeEvolution.");
-           setStage("failed");
-           return;
-         }
-         // Poll succeeded — skip rest (event stored below from childId)
-       } else {
-         const completeHash = await writeCompleteEvolution({
-           address: COORDINATOR_ADDRESS,
-           abi: replicantEvolutionCoordinatorAbi,
-           functionName: "completeEvolution",
-           args: [
-             BigInt(requestId),
-             evolveData.childGenomeHash as `0x${string}`,
-             evolveData.storageRootHash as `0x${string}`,
-             evolveData.teeAttestationHash as `0x${string}`,
-             alignData.alignmentVerdictHash as `0x${string}`,
-             BigInt(Math.floor(activeAgent.fitnessScore + evolveData.fitnessImprovement)),
-             [],
-           ],
-         });
-
-         const completeReceipt = await publicClient.waitForTransactionReceipt({ hash: completeHash });
-         const completeLogs = parseEventLogs({
-           abi: replicantEvolutionCoordinatorAbi,
-           eventName: "EvolutionCompleted",
-           logs: completeReceipt.logs,
-         });
-
-         const childId = completeLogs[0]?.args?.childId;
-         if (!childId) throw new Error("Could not find childId in EvolutionCompleted event");
-
-         // Store evolution event in localStorage
-         const evolutionEvent = {
-           id: `evo-chain-${requestId}`,
-           agentId: activeAgent.id,
-           agentName: activeAgent.name,
-           parentGeneration: activeAgent.generation,
-           childGeneration: activeAgent.generation + 1,
-           status: "completed",
-           fitnessImprovement: evolveData.fitnessImprovement,
-           mutationStrategy: "prompt_paraphrase",
-           startedAt: new Date().toISOString(),
-           completedAt: new Date().toISOString(),
-           txHash: completeHash,
-           childGenomeHash: evolveData.childGenomeHash,
-           storageRootHash: evolveData.storageRootHash,
-           teeAttestationHash: evolveData.teeAttestationHash,
-           alignmentVerdictHash: alignData.alignmentVerdictHash,
-         };
-         const existingEvolutions = JSON.parse(localStorage.getItem("replicant-evolutions") || "[]");
-         existingEvolutions.unshift(evolutionEvent);
-         localStorage.setItem("replicant-evolutions", JSON.stringify(existingEvolutions));
-
-         setChildId(childId);
-         setStage("done");
-         refetch();
-       }
      } catch (err) {
        console.error("Evolution failed:", err);
-      setError(err instanceof BaseError ? err.shortMessage : err instanceof Error ? err.message : "Evolution failed");
-      setStage("failed");
-    }
-  }
+       setError(err instanceof BaseError ? err.shortMessage : err instanceof Error ? err.message : "Evolution failed");
+       setStage("failed");
+     }
+   }
+
+   async function handleCompleteEvolution() {
+     if (!pendingCompleteData || !COORDINATOR_ADDRESS) return;
+     try {
+       const completeHash = await writeCompleteEvolution({
+         address: COORDINATOR_ADDRESS,
+         abi: replicantEvolutionCoordinatorAbi,
+         functionName: "completeEvolution",
+         args: [
+           BigInt(pendingCompleteData.requestId),
+           pendingCompleteData.childGenomeHash as `0x${string}`,
+           pendingCompleteData.storageRootHash as `0x${string}`,
+           pendingCompleteData.teeAttestationHash as `0x${string}`,
+           pendingCompleteData.alignmentVerdictHash as `0x${string}`,
+           BigInt(pendingCompleteData.fitnessScore),
+           [],
+         ],
+       });
+
+       if (!publicClient) throw new Error("Public client not available");
+       const completeReceipt = await publicClient.waitForTransactionReceipt({ hash: completeHash });
+       const completeLogs = parseEventLogs({
+         abi: replicantEvolutionCoordinatorAbi,
+         eventName: "EvolutionCompleted",
+         logs: completeReceipt.logs,
+       });
+
+       const childId = completeLogs[0]?.args?.childId;
+       if (!childId) throw new Error("Could not find childId in EvolutionCompleted event");
+
+       const evolutionEvent = {
+         id: `evo-chain-${pendingCompleteData.requestId}`,
+         agentId: activeAgent?.id ?? 0,
+         agentName: activeAgent?.name ?? "",
+         parentGeneration: activeAgent?.generation ?? 0,
+         childGeneration: (activeAgent?.generation ?? 0) + 1,
+         status: "completed",
+         fitnessImprovement: evolutionData.fitnessImprovement ?? 0,
+         mutationStrategy: "prompt_paraphrase",
+         startedAt: new Date().toISOString(),
+         completedAt: new Date().toISOString(),
+         txHash: completeHash,
+         childGenomeHash: pendingCompleteData.childGenomeHash,
+         storageRootHash: pendingCompleteData.storageRootHash,
+         teeAttestationHash: pendingCompleteData.teeAttestationHash,
+         alignmentVerdictHash: pendingCompleteData.alignmentVerdictHash,
+       };
+       const existingEvolutions = JSON.parse(localStorage.getItem("replicant-evolutions") || "[]");
+       existingEvolutions.unshift(evolutionEvent);
+       localStorage.setItem("replicant-evolutions", JSON.stringify(existingEvolutions));
+
+       setChildId(childId);
+       setStage("done");
+       setPendingCompleteData(null);
+       refetch();
+     } catch (err) {
+       console.error("completeEvolution failed:", err);
+       setError(err instanceof BaseError ? err.shortMessage : err instanceof Error ? err.message : "completeEvolution failed");
+       setStage("failed");
+     }
+   }
 
    function reset() {
      setStage("idle");
      setError(null);
      setChildId(null);
      setEvolutionData({});
+     setPendingCompleteData(null);
      resetReq();
      resetComplete();
    }
@@ -688,11 +683,25 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
              Trigger Evolution
            </ActionButton>
          )}
-        {(stage === "done" || stage === "failed") && (
-          <ActionButton variant="outline" className="w-full border-white/20 text-white hover:bg-white/5" onClick={reset}>
-            Reset Chamber
-          </ActionButton>
-        )}
+          {(stage === "done" || stage === "failed") && (
+           <ActionButton variant="outline" className="w-full border-white/20 text-white hover:bg-white/5" onClick={reset}>
+             Reset Chamber
+           </ActionButton>
+          )}
+          {stage === "minting" && pendingCompleteData && (
+           <ActionButton
+             className="w-full py-6 bg-violet-500 hover:bg-violet-600 text-white border-0"
+             onClick={handleCompleteEvolution}
+             disabled={completePending}
+             title={!COORDINATOR_ADDRESS ? "Evolution Coordinator not configured" : undefined}
+           >
+             {completePending ? (
+               <><Loader2 size={16} className="mr-2 animate-spin" /> Signing...</>
+             ) : (
+               "Complete Evolution (Mint Child)"
+             )}
+           </ActionButton>
+          )}
 
         {!COORDINATOR_ADDRESS && (
           <p className="text-center text-xs text-white/60">
