@@ -1,84 +1,70 @@
-import { NextResponse } from "next/server";
-import { ethers } from "ethers";
-import { createStorageClient } from "@/lib/0g-storage";
-import { publicEnv } from "@/lib/env";
+import { NextRequest, NextResponse } from "next/server";
+import { keccak256, toHex } from "viem";
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-
-interface AlignmentCheck {
-  check: string;
-  passed: boolean;
-  score: number;
-  detail: string;
-}
-
-const CHECKS = [
-  { name: "bias_drift", threshold: 20 },
-  { name: "toxicity", threshold: 0 },
-  { name: "anomaly", threshold: 3 },
-  { name: "goal_divergence", threshold: 0 },
-] as const;
-
-function runChecks(): { checks: AlignmentCheck[]; overallPass: boolean; verdictHash: string } {
-  const checks: AlignmentCheck[] = CHECKS.map((c) => {
-    const severity = Math.random() * 30;
-    const passed = severity < c.threshold;
-    return {
-      check: c.name,
-      passed,
-      score: Math.max(0, Math.round(100 - severity * 3)),
-      detail: passed
-        ? "Within acceptable range"
-        : `${c.name} exceeds threshold (${severity.toFixed(1)} > ${c.threshold})`,
-    };
-  });
-
-  const overallPass = checks.every((c) => c.passed);
-  const verdictHash = ethers.hexlify(ethers.randomBytes(32));
-
-  return { checks, overallPass, verdictHash };
-}
-
-export async function POST(request: Request) {
+/**
+ * @route POST /api/alignment/scan
+ * @description Simulates Alignment Node verification
+ * 
+ * In production, this would:
+ * 1. Connect to decentralized Alignment Node network
+ * 2. Run bias detection algorithms
+ * 3. Check for goal divergence
+ * 4. Verify agent remains helpful, harmless, honest
+ * 5. Return alignment verdict with proof
+ * 
+ * For testnet, we simulate with 95% pass rate using deterministic hashing
+ */
+export async function POST(req: NextRequest) {
   try {
-    const { agentId, genomeHash } = await request.json();
-    if (agentId === undefined || !genomeHash) {
-      return NextResponse.json({ error: "agentId and genomeHash required" }, { status: 400 });
+    const body = await req.json();
+    const { agentId, genomeHash } = body;
+
+    if (!agentId || !genomeHash) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
     }
 
-    const { checks, overallPass, verdictHash } = runChecks();
+    // Simulate alignment scan delay (1-2 seconds)
+    await delay(1000 + Math.random() * 1000);
 
-    const storagePrivateKey = process.env.ZERO_G_STORAGE_PRIVATE_KEY ?? process.env.PRIVATE_KEY;
-    if (storagePrivateKey) {
-      const client = createStorageClient({
-        rpcUrl: publicEnv.rpcUrl,
-        indexerUrl: publicEnv.storageIndexer,
-        privateKey: storagePrivateKey,
-      });
-      await client.uploadJson({
-        type: "alignment_verdict",
-        agentId: agentId.toString(),
-        genomeHash,
-        verdict: overallPass ? "PASS" : "SLASH",
-        checks,
-        verdictHash,
-        timestamp: new Date().toISOString(),
-      }).catch(() => {});
-    }
+    // Use agentId to determine pass/fail consistently (95% pass rate simulation)
+    // This ensures the same agent always gets the same result
+    const agentIdNum = typeof agentId === 'string' ? parseInt(agentId) : agentId;
+    const passed = (agentIdNum % 20) !== 0; // ~95% pass rate (19 out of 20 pass)
+
+    // Generate DETERMINISTIC alignment verdict hash (no timestamp)
+    const alignmentVerdictHash = keccak256(
+      toHex(`alignment-verdict-${agentId}-${genomeHash}-${passed ? "pass" : "fail"}-v1`)
+    );
+
+    // Generate alignment score deterministically based on agentId
+    const alignmentScore = passed 
+      ? 80 + (agentIdNum % 20)  // 80-99 for pass
+      : agentIdNum % 60;        // 0-59 for fail
 
     return NextResponse.json({
-      status: overallPass ? "PASS" : "SLASH",
-      verdictHash,
-      checks,
-      summary: overallPass
-        ? "All alignment checks passed"
-        : `Failed: ${checks.filter((c) => !c.passed).map((c) => c.check).join(", ")}`,
+      success: true,
+      passed,
+      alignmentVerdictHash,
+      alignmentScore,
+      checks: {
+        biasDetection: passed,
+        goalDivergence: passed,
+        harmfulnessCheck: passed,
+        honestyCheck: passed,
+      },
     });
   } catch (error) {
+    console.error("Alignment scan failed:", error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Alignment scan failed" },
+      { error: "Alignment scan failed" },
       { status: 500 }
     );
   }
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
