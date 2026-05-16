@@ -32,8 +32,9 @@
   ],
   "exclude": [
     "node_modules",
-    ".0g-skills",
+    "0g-agent-skills",
     "0g-agent-nft",
+    ".0g-skills",
     "cache_forge",
     "out"
   ]

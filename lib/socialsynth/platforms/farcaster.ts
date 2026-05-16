@@ -85,7 +85,7 @@ export class FarcasterPublisher {
           type: 0 as const
         },
         dataOptions,
-        signerKey
+        signerKey as any // Type compatibility fix for Farcaster SDK
       );
 
       if (castResult.isErr()) throw new Error(`Failed to create cast ${i}: ${castResult.error}`);
@@ -110,8 +110,8 @@ export class FarcasterPublisher {
       const castId = CastId.create({ fid: this.config!.fid, hash: hexToBytes(castHash as `0x${string}`) });
 
       const [reactionsRes, repliesRes] = await Promise.all([
-        client.getReactionsByTarget(castId),
-        client.getCastsByParent(castId),
+        client.getReactionsByTarget({ targetCastId: castId } as any),
+        client.getCastsByParent({ parentCastId: castId } as any),
       ]);
 
       client.close();
