@@ -84,7 +84,24 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
     fitnessImprovement?: number;
   }>({});
 
-  const { data: reqHash, isPending: reqPending, writeContractAsync: writeRequest, reset: resetReq } = useWriteContract();
+   const { data: reqHash, isPending: reqPending, writeContractAsync: writeRequest, reset: resetReq } = useWriteContract();
+
+   // Pre-flight check: Verify user owns the active agent on-chain
+   const { data: agentOwner } = useReadContract({
+     address: publicEnv.contracts.agentId,
+     abi: [
+       {
+         type: "function",
+         name: "ownerOf",
+         stateMutability: "view",
+         inputs: [{ type: "uint256" }],
+         outputs: [{ type: "address" }],
+       },
+     ],
+     functionName: "ownerOf",
+     args: [BigInt(activeAgent?.id ?? 0)],
+     query: { enabled: !!activeAgent?.id && !!publicEnv.contracts.agentId },
+   });
 
   const userAgents = agents.filter((a) => a.owner.toLowerCase() === address?.toLowerCase());
   // Priority: Active > Evolving > Slashed > Archived
@@ -96,7 +113,9 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
   const evolvableAgents = userAgents.filter((a) => a.status === "active" || a.status === "evolving");
   const activeAgent = userAgents.find((a) => a.id === activeAgentId) ?? evolvableAgents[0] ?? userAgents[0];
 
-  const canEvolve = activeAgent?.status === "active" && isConnected && !!COORDINATOR_ADDRESS;
+   // canEvolve requires: active status, wallet connected, coordinator available, and on-chain ownership verified
+   const ownershipVerified = agentOwner?.toLowerCase() === address?.toLowerCase();
+   const canEvolve = activeAgent?.status === "active" && isConnected && !!COORDINATOR_ADDRESS && (agentOwner === undefined || ownershipVerified);
 
   async function handleRequestEvolution() {
     if (!activeAgent || !COORDINATOR_ADDRESS) return;
@@ -108,10 +127,18 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
     setStage("requesting");
     resetReq();
 
-    try {
-      if (activeAgent.owner.toLowerCase() !== address?.toLowerCase()) {
-        throw new Error("You do not own this agent. Ownership is required for evolution.");
-      }
+     try {
+       // First check: UI-level ownership (from dashboard data)
+       if (activeAgent.owner.toLowerCase() !== address?.toLowerCase()) {
+         throw new Error("You do not own this agent (UI check). Ownership is required for evolution.");
+       }
+
+       // Second check: On-chain ownership verification (if available)
+       if (agentOwner && agentOwner.toLowerCase() !== address?.toLowerCase()) {
+         throw new Error(
+           `On-chain ownership mismatch. You: ${address}, Owner: ${agentOwner}. The agent was possibly transferred.`
+         );
+       }
 
       // Ensure we have a valid 32-byte hash.
       const rawTxHash = activeAgent.txHash as Hash;
@@ -204,15 +231,24 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
         return;
       }
 
-      // PRODUCTION MODE: Full on-chain transaction flow
-      const hash = await writeRequest({
-        address: COORDINATOR_ADDRESS,
-        abi: replicantEvolutionCoordinatorAbi,
-        functionName: "requestEvolution",
-        args: [BigInt(activeAgent.id), parentGenomeHash, performanceHistoryHash],
-      });
+       // PRODUCTION MODE: Full on-chain transaction flow
+       try {
+         const hash = await writeRequest({
+           address: COORDINATOR_ADDRESS,
+           abi: replicantEvolutionCoordinatorAbi,
+           functionName: "requestEvolution",
+           args: [BigInt(activeAgent.id), parentGenomeHash, performanceHistoryHash],
+         });
 
-      setStage("requested");
+         setStage("requested");
+       } catch (writeErr) {
+         console.error("requestEvolution write error:", writeErr);
+         // Provide more detailed error info
+         if (writeErr instanceof Error) {
+           throw new Error(`Contract call failed: ${writeErr.message}`);
+         }
+         throw writeErr;
+       }
 
       // Wait for confirmation to get requestId
       if (!publicClient) throw new Error("Public client not available");
@@ -577,16 +613,22 @@ export function EvolutionCard({ onStageChange }: { onStageChange?: (stage: Stage
         )}
 
         {/* CTA */}
-        {stage === "idle" && (
-          <ActionButton
-            className="w-full py-6 bg-violet-500 hover:bg-violet-600 text-white border-0"
-            onClick={handleRequestEvolution}
-            disabled={!canEvolve}
-            title={!COORDINATOR_ADDRESS ? "Set NEXT_PUBLIC_EVOLUTION_COORDINATOR_CONTRACT" : !canEvolve ? "Agent must be Active to evolve" : undefined}
-          >
-            Trigger Evolution
-          </ActionButton>
-        )}
+         {stage === "idle" && (
+           <ActionButton
+             className="w-full py-6 bg-violet-500 hover:bg-violet-600 text-white border-0"
+             onClick={handleRequestEvolution}
+             disabled={!canEvolve}
+             title={
+               !COORDINATOR_ADDRESS ? "Set NEXT_PUBLIC_EVOLUTION_COORDINATOR_CONTRACT"
+               : !activeAgent ? "No agent selected"
+               : activeAgent.status !== "active" ? "Agent must be Active to evolve"
+               : agentOwner && agentOwner.toLowerCase() !== address?.toLowerCase() ? `Ownership mismatch: You (${address?.slice(0, 6)}...) vs Owner (${agentOwner?.slice(0, 6)}...)`
+               : undefined
+             }
+           >
+             Trigger Evolution
+           </ActionButton>
+         )}
         {(stage === "done" || stage === "failed") && (
           <ActionButton variant="outline" className="w-full border-white/20 text-white hover:bg-white/5" onClick={reset}>
             Reset Chamber
