@@ -93,7 +93,34 @@ export const replicantAgentNftAbi = [
        { name: "from", type: "address" },
        { name: "to", type: "address" },
        { name: "tokenId", type: "uint256" },
-       { name: "proofs", type: "bytes[]" },
+       {
+         name: "proofs",
+         type: "tuple[]",
+         components: [
+           {
+             name: "accessProof",
+             type: "tuple",
+             components: [
+               { name: "dataHash", type: "bytes32" },
+               { name: "targetPubkey", type: "bytes" },
+               { name: "nonce", type: "bytes" },
+               { name: "proof", type: "bytes" },
+             ],
+           },
+           {
+             name: "ownershipProof",
+             type: "tuple",
+             components: [
+               { name: "oracleType", type: "uint8" },
+               { name: "dataHash", type: "bytes32" },
+               { name: "sealedKey", type: "bytes" },
+               { name: "targetPubkey", type: "bytes" },
+               { name: "nonce", type: "bytes" },
+               { name: "proof", type: "bytes" },
+             ],
+           },
+         ],
+       },
      ],
      outputs: [],
    },
