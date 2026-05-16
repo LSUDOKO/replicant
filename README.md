@@ -56,6 +56,8 @@ The current AI landscape suffers from three critical flaws:
 
 ## ✨ The Solution
 
+<img width="1859" height="937" alt="swappy-20260516-104413" src="https://github.com/user-attachments/assets/89000661-9f1a-4333-942c-c432cdfb85b7" />
+
 **REPLICANT** transforms AI agents into **decentralized, verifiable, evolutionary digital organisms** using zero-knowledge infrastructure.
 
 ### Core Innovations:
