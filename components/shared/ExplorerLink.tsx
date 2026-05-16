@@ -3,16 +3,9 @@ import { ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type ExplorerTarget = "tx" | "address" | "attestation" | "storage" | "block";
-type ExplorerNetwork = "galileo" | "mainnet";
+type ExplorerNetwork = "mainnet";
 
 const explorerBaseUrls: Record<ExplorerNetwork, Record<ExplorerTarget, string>> = {
-  galileo: {
-    tx: "https://chainscan-galileo.0g.ai/tx",
-    address: "https://chainscan-galileo.0g.ai/address",
-    block: "https://chainscan-galileo.0g.ai/block",
-    attestation: "https://chainscan-galileo.0g.ai/tx",
-    storage: "https://chainscan-galileo.0g.ai/search?q=",
-  },
   mainnet: {
     tx: "https://chainscan.0g.ai/tx",
     address: "https://chainscan.0g.ai/address",
@@ -41,7 +34,7 @@ export function ExplorerLink({
   value,
   hash,
   type = "tx",
-  network = "galileo",
+  network = "mainnet",
   className,
   children,
   showIcon = true,
@@ -74,7 +67,7 @@ export function ExplorerLinkWrapper({
   value,
   hash,
   type = "tx",
-  network = "galileo",
+  network = "mainnet",
   className,
   children,
 }: ExplorerLinkProps) {

@@ -176,7 +176,7 @@ export function AgentDetailModal({ agent, open, onOpenChange }: AgentDetailModal
                 <div className="flex justify-between items-center">
                   <span className="text-white/50">Transaction</span>
                   <a
-                    href={`https://chainscan-galileo.0g.ai/tx/${agent.txHash}`}
+                    href={`https://chainscan.0g.ai/tx/${agent.txHash}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-1 text-[#8b5cf6] hover:text-[#8b5cf6]/80 text-[10px]"

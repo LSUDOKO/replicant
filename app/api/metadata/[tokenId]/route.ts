@@ -101,7 +101,7 @@ export async function GET(
       description: `REPLICANT autonomous AI agent — ${species} Gen-${generation}. An ERC-7857 iNFT on the 0G network with encrypted genome and TEE-verified inference.`,
       image: imageUrl, // Use actual species image
       image_data: imageDataUri, // Keep SVG as backup
-      external_url: `https://chainscan-galileo.0g.ai/token/${contractAddr}?a=${tokenId}`,
+      external_url: `https://chainscan.0g.ai/token/${contractAddr}?a=${tokenId}`,
       attributes: [
         { trait_type: "Species", value: species },
         { trait_type: "Generation", value: generation },

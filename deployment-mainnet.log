@@ -1,0 +1,37 @@
+No files changed, compilation skipped
+Script ran successfully.
+
+== Return ==
+d: struct DeployReplicant.Deployment Deployment({ agentNFT: 0x78cE8c8B2c6d06879c3E0B4e05512fCA92999E9F, verifier: 0xcD71f43BB31e0861B81DAEdE537FAB0EB998B4a0, evolutionCoordinator: 0x47CD16F330E3Fb65E8fa1249FbBc0571eA2f0A1B, marketplace: 0xE14D5f46b9f5380aF54e0463196928daD76C8062, subscriptionEscrow: 0xB3A5DDADcE696E9A94C0892664582dBD9CE1c85B })
+
+== Logs ==
+  === Replicant Deployment ===
+  NEXT_PUBLIC_AGENT_ID_CONTRACT= 0x78cE8c8B2c6d06879c3E0B4e05512fCA92999E9F
+  NEXT_PUBLIC_EVOLUTION_COORDINATOR_CONTRACT= 0x47CD16F330E3Fb65E8fa1249FbBc0571eA2f0A1B
+  NEXT_PUBLIC_MARKETPLACE_CONTRACT= 0xE14D5f46b9f5380aF54e0463196928daD76C8062
+  NEXT_PUBLIC_SUBSCRIPTION_ESCROW_CONTRACT= 0xB3A5DDADcE696E9A94C0892664582dBD9CE1c85B
+  baseURI set to: https://replicant0g.me/api/metadata/
+
+## Setting up 1 EVM.
+
+==========================
+
+Chain 16661
+
+Estimated gas price: 4.000000007 gwei
+
+Estimated total gas used for script: 9160505
+
+Estimated amount required: 0.036642020064123535 ETH
+
+==========================
+
+
+==========================
+
+ONCHAIN EXECUTION COMPLETE & SUCCESSFUL.
+
+Transactions saved to: /home/arpit/Desktop/hackathon_projects/replicant/broadcast/DeployReplicant.s.sol/16661/run-latest.json
+
+Sensitive values saved to: /home/arpit/Desktop/hackathon_projects/replicant/cache_forge/DeployReplicant.s.sol/16661/run-latest.json
+

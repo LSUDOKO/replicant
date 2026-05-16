@@ -125,7 +125,7 @@ function SignalCard({ signal, isLatest }: { signal: LiveSignal; isLatest?: boole
           </span>
           {signal.txHash && signal.txHash.startsWith("0x") && signal.txHash.length === 66 && (
             <a
-              href={`https://chainscan-galileo.0g.ai/tx/${signal.txHash}`}
+              href={`https://chainscan.0g.ai/tx/${signal.txHash}`}
               target="_blank" rel="noopener noreferrer"
               style={{ fontSize: "10px", color: "#8B5CF6", display: "flex", alignItems: "center", gap: "3px" }}
               title="View transaction on 0G Chain"
@@ -135,7 +135,7 @@ function SignalCard({ signal, isLatest }: { signal: LiveSignal; isLatest?: boole
           )}
           {signal.storageHash && signal.storageHash.startsWith("0x") && signal.storageHash.length === 66 && signal.txHash && signal.txHash !== "uploaded" && (
             <a
-              href={`https://storagescan-galileo.0g.ai`}
+              href={`https://storagescan.0g.ai`}
               target="_blank" rel="noopener noreferrer"
               style={{ fontSize: "10px", color: "#8B5CF6", display: "flex", alignItems: "center", gap: "3px" }}
               title={`Storage Root: ${signal.storageHash}`}

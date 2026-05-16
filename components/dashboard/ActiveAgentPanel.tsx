@@ -235,7 +235,7 @@ export function ActiveAgentPanel() {
                   <div className="flex items-center gap-3">
                     {latestSignal.txHash && (
                       <a
-                        href={`https://chainscan-galileo.0g.ai/tx/${latestSignal.txHash}`}
+                        href={`https://chainscan.0g.ai/tx/${latestSignal.txHash}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1 text-[10px] text-[#8b5cf6] hover:text-[#8b5cf6]/80 transition-colors"
@@ -246,7 +246,7 @@ export function ActiveAgentPanel() {
                     )}
                     {latestSignal.storageHash && (
                       <a
-                        href={`https://storagescan-galileo.0g.ai/tx/${latestSignal.storageHash}`}
+                        href={`https://storagescan.0g.ai/tx/${latestSignal.storageHash}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1 text-[10px] text-[#8b5cf6] hover:text-[#8b5cf6]/80 transition-colors"

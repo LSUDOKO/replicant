@@ -223,7 +223,7 @@ export default function AgentDetailPage({ params }: { params: Promise<{ agentId:
               <p style={{ fontSize: "10px", color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "6px" }}>Creator</p>
               <ExplorerLinkWrapper value={agentData.creator} type="address" />
             </div>
-            <a href={`https://chainscan-galileo.0g.ai/token/${nftAddr}?a=${agentId}`} target="_blank" rel="noopener noreferrer"
+            <a href={`https://chainscan.0g.ai/token/${nftAddr}?a=${agentId}`} target="_blank" rel="noopener noreferrer"
               style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "12px", color: accent }}>
               <ExternalLink size={12} /> View on 0G Chain
             </a>
