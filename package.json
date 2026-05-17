@@ -16,6 +16,7 @@
     "@0gfoundation/0g-storage-ts-sdk": "^1.2.9",
     "@0glabs/0g-serving-broker": "^0.6.6",
     "@base-ui/react": "^1.4.1",
+    "@foundryprotocol/sdk": "^1.0.0",
     "@farcaster/hub-nodejs": "^0.15.11",
     "@farcaster/hub-web": "^0.11.9",
     "@phosphor-icons/react": "^2.1.10",

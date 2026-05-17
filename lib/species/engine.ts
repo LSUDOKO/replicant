@@ -1,4 +1,5 @@
 import { keccak256, toHex } from "viem";
+import { resolveFoundryIngot, runFoundryInference } from "@/lib/foundry";
 
 export type SpeciesId = "alpha-hunter" | "code-weaver" | "game-master" | "docu-mind" | "oracle-keeper" | "social-synth";
 
@@ -41,7 +42,7 @@ const SPECIES_METADATA: Record<SpeciesId, { accent: string; gradient: string }> 
 
 export { SPECIES_IMAGES, SPECIES_METADATA };
 
-const SPECIES_SYSTEM_PROMPTS: Record<SpeciesId, string> = {
+export const SPECIES_SYSTEM_PROMPTS: Record<SpeciesId, string> = {
   "alpha-hunter": `You are AlphaHunter, an AI agent that aggregates social and market sentiment into trading signals.
 Analyze the config and return a JSON object with:
 - signal: "BUY" | "HOLD" | "SELL"
@@ -289,6 +290,20 @@ async function runSocialSynth(config: Record<string, unknown>, payload?: Record<
 }
 
 export async function runInference(input: InferenceInput): Promise<InferenceOutput> {
+  // Foundry path: if this species is bound to a community-owned, verifiable
+  // Ingot (per-request config or FOUNDRY_INGOT_<SPECIES> env), route inference
+  // through 0G Compute with an on-chain receipt. Falls back below otherwise.
+  const ingotId = resolveFoundryIngot(input.species, input.config);
+  if (ingotId) {
+    return runFoundryInference({
+      species: input.species,
+      ingotId,
+      systemPrompt: SPECIES_SYSTEM_PROMPTS[input.species],
+      config: input.config,
+      payload: input.payload,
+    });
+  }
+
   switch (input.species) {
     case "alpha-hunter": return runAlphaHunter(input.config, input.payload);
     case "code-weaver": return runCodeWeaver(input.config, input.payload);

@@ -237,6 +237,27 @@ await file.upload(flowContract, evmSigner);
 - **Security**: Prevents extraction or copying of AI models
 - **Trust**: No need to trust the operator, trust the hardware
 
+### 4. **Foundry Protocol (Community-Owned, Verifiable Inference)**
+
+[Foundry Protocol](https://foundryprotocol.xyz) lets people pool data, compute,
+and capital to **co-train a model**, mint a verifiable **revenue-generating
+ownership share** (an _Ingot_), and serve inference over **0G Compute** with an
+on-chain inference + revenue receipt.
+
+**What it provides:**
+- Swap any species onto a **community-owned model** instead of centralized OpenRouter
+- `teeAttestation` becomes a **real 0G inference tx hash**, not a synthetic keccak
+- Contributors earn revenue **every time the agent thinks**, split on-chain
+- Opt-in and **non-breaking** — a species uses Foundry only when an Ingot is bound
+
+```bash
+FOUNDRY_INGOT_ALPHA_HUNTER=ingot:0x...   # bind a species to an Ingot
+GET  /api/foundry            # deployment + Ingot-backed species
+GET  /api/foundry?tokenId=1  # lineage + on-chain revenue for a backing Ingot
+```
+
+Full guide: [`docs/foundry-integration.md`](docs/foundry-integration.md).
+
 ---
 
 ## 📜 Deployed Contracts (Mainnet)
