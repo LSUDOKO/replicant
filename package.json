@@ -24,6 +24,7 @@
     "@solidity-parser/parser": "^0.20.2",
     "@svgr/webpack": "^8.1.0",
     "@tanstack/react-query": "^5.100.10",
+    "@vercel/analytics": "^2.0.1",
     "@xyflow/react": "^12.10.2",
     "chess.js": "^1.4.0",
     "class-variance-authority": "^0.7.1",
