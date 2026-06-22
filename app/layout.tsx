@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Roboto, Sniglet } from "next/font/google";
 import { AppProviders } from "@/app/providers";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const roboto = Roboto({
@@ -36,6 +37,7 @@ export default function RootLayout({
       <body className="min-h-[100dvh] flex flex-col selection:bg-primary selection:text-primary-foreground">
         <div className="noise-overlay" />
         <AppProviders>{children}</AppProviders>
+        <Analytics />
       </body>
     </html>
   );
